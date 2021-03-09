@@ -24,8 +24,8 @@ jobs:
           GITHUB_COMMIT: '$GITHUB_SHA'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
           RUNNER_SG: '${{ secrets.RUNNER_SG }}'
-          RUNNER_ACID: '${{ secrets.RUNNER_ACID }'
-          RUNNER_EXID: '${{ secrets.RUNNER_EXID }'
+          RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
+          RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: '${{ secrets.RUNNER_URL }}'
 
       - name: Get the output runner name
