@@ -72,6 +72,8 @@ async function make_api_request(action, garo_url, github_token, github_commit, p
     console.log(`statusCode: ${res.statusCode}`)
 
     res.on('data', d => {
+      console.log("Data response:");
+      console.log(d);
       if (d != "error") {
         return JSON.parse(d)
       }
@@ -137,7 +139,7 @@ async function run() {
         while (i < 10) {
           i++;
           await wait(20000);
-          
+
           const state_result = await make_api_request(
             "state",
             garo_url,
