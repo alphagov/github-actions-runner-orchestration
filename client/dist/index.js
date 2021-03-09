@@ -132,18 +132,22 @@ async function run() {
       )
 
       console.log("wait_for_start:", wait_for_start);
-      console.log("result:", result);
 
       if (result["runnerstate"] == "started") {
         console.log("Runner already started:", result);
+
         core.setOutput("name", result["name"]);
         core.setOutput("runnerstate", result["runnerstate"]);
       }
+
       if (result["runnerstate"] == "starting" && wait_for_start) {
         console.log("Runner starting:", result);
+        postObj["name"] = result["name"];
+
         let i = 0;
         while (i < 10) {
           i++;
+          console.log(`Starting wait: ${i}`)
           await wait(20000);
 
           const state_result = make_api_request(
