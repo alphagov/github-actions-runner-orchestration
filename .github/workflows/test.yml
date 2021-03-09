@@ -27,7 +27,7 @@ jobs:
           RUNNER_SG: '${{ secrets.RUNNER_SG }}'
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
-          GARO_URL: '${{ secrets.RUNNER_URL }}'
+          GARO_URL: '${{ secrets.GARO_URL }}'
 
       - name: Get the output runner name
         run: echo "The time was ${{ steps.garo-client.outputs.name }}"
