@@ -4,15 +4,17 @@
   "description": "GitHub Actions Runner Orchestration Client",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint index.js",
     "test": "node index.js"
   },
   "author": "alphagov",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0"
+    "@actions/core": "^1.2.6"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^7.21.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alphagov/github-actions-runner-orchestration.git"

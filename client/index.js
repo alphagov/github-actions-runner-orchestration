@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-const github = require('@actions/github');
+const wait = require('./wait');
 const crypto = require('crypto')
 
 
@@ -15,34 +15,37 @@ const getItem = (itemName, defaultStr = null) => {
 }
 
 
-async function make_api_request(action, postObj) {
+async function make_api_request(action, garo_url, github_token, github_commit, postObj) {
 
   const https = require('https');
 
-  api_uri = new URL(garo_url);
+  const api_uri = new URL(garo_url);
 
-  var data = "";
+  const current_time = Math.floor(new Date().getTime() / 1000).toString();
+  postObj.time = current_time;
 
-  current_time = Math.floor(new Date().getTime() / 1000).toString();
+  postObj.dryrun = true;
 
-  if (true) {
-    postObj.dryrun = true;
-  }
-
-  if (action == "start") {
+  if (action == "start")
+  {
     console.log("Sending start action to API");
-  } else if (action == "state") {
-    if (! "name" in postObj) {
+  }
+  else if (action == "state")
+  {
+    if ("name" in postObj) {
+      console.log("Sending state action to API");
+    } else {
       throw "name missing";
     }
-    console.log("Sending state action to API");
-  } else{
-    return False;
+  }
+  else
+  {
+    return false;
   }
 
-  data = JSON.stringify(postObj);
+  const data = JSON.stringify(postObj);
 
-  signature = crypto.createHmac('sha512', github_token).update(data).digest('hex');
+  const signature = crypto.createHmac('sha512', github_token).update(data).digest('hex');
 
   const options = {
     hostname: api_uri.hostname,
@@ -78,73 +81,85 @@ async function make_api_request(action, postObj) {
 }
 
 
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
+async function run() {
+  try {
+    const wait_for_start = getItem('WAIT_FOR_START', "true");
+    const action = getItem('ACTION', "start");
+    const garo_url = getItem('GARO_URL');
+    const github_token = getItem('GITHUB_TOKEN');
+    const github_commit = getItem('GITHUB_COMMIT');
+
+    let postObj = {
+      repo: getItem('REPO'),
+      account_id: getItem('RUNNER_ACID'),
+      external_id: getItem('RUNNER_EXID'),
+      type: getItem('RUNNER_TYPE', "spot"),
+      region: getItem('RUNNER_REGION', "eu-west-2"),
+      timeout: getItem('RUNNER_TIMEOUT', "3600"),
+    }
+
+    const rName = getItem('RUNNER_NAME', "");
+    if (rName != "") {
+      postObj["name"] = rName
+    }
+
+    const rSub = getItem('RUNNER_SUBNET', "");
+    if (rSub != "") {
+      postObj["subnet"] = rSub
+    }
+
+    const rSg = getItem('RUNNER_SG', "");
+    if (rSg != "") {
+      postObj["sg"] = rSg
+    }
 
 
-try {
-  const wait_for_start = getItem('WAIT_FOR_START', "true");
-  const action = getItem('ACTION', "start");
-  const garo_url = getItem('GARO_URL');
+    let result = {"name": "", "runnerstate": "failure"}
 
-  postObj = {
-    github_token: getItem('GITHUB_TOKEN'),
-    repo: getItem('REPO'),
-    github_commit: getItem('GITHUB_COMMIT'),
-    account_id: getItem('RUNNER_ACID'),
-    external_id: getItem('RUNNER_EXID'),
-    type: getItem('RUNNER_TYPE', "spot"),
-    region: getItem('RUNNER_REGION', "eu-west-2"),
-    timeout: getItem('RUNNER_TIMEOUT', "3600"),
-  }
+    if (action == "start") {
+      result = await make_api_request(
+        "start",
+        garo_url,
+        github_token,
+        github_commit,
+        postObj
+      );
 
-  const rName = getItem('RUNNER_NAME', "");
-  if (rName != "") {
-    postObj["name"] = rName
-  }
+      if (result["runnerstate"] == "starting" && wait_for_start) {
+        let i = 0;
+        while (i < 10) {
+          i++;
+          await wait(20000);
+          
+          const state_result = await make_api_request(
+            "state",
+            garo_url,
+            github_token,
+            github_commit,
+            postObj
+          );
 
-  const rSub = getItem('RUNNER_SUBNET', "");
-  if (rSub != "") {
-    postObj["subnet"] = rSub
-  }
-
-  const rSg = getItem('RUNNER_SG', "");
-  if (rSg != "") {
-    postObj["sg"] = rSg
-  }
-
-
-  result = {"name": "", "runnerstate": "failure"}
-
-  if (action == "start") {
-    result =  make_api_request("start", postObj);
-
-    if (result["runnerstate"] == "starting" && wait_for_start) {
-      while (i < 10) {
-        i++;
-         sleep(20000);
-        state_result =  make_api_request("state", postObj);
-        if ("runnerstate" == "started") {
-          result = state_result;
-          break;
+          if (state_result["runnerstate"] == "started") {
+            result = state_result;
+            break;
+          }
         }
       }
     }
-  }
 
-  core.setOutput("name", result.name);
-  core.setOutput("runnerstate", result.runnerstate);
+    core.setOutput("name", result.name);
+    core.setOutput("runnerstate", result.runnerstate);
 
-} catch (error) {
-  if (typeof(error) == "object" && "message" in error)
-  {
-    core.setFailed(error.message);
-  }
-  else
-  {
-    core.setFailed(error);
+  } catch (error) {
+    if (typeof(error) == "object" && "message" in error)
+    {
+      core.setFailed(error.message);
+    }
+    else
+    {
+      core.setFailed(error);
+    }
   }
 }
+
+run();
