@@ -16,5 +16,7 @@ while true; do
     echo "------------------"
     sleep 20 && sudo shutdown -h now &
     ./remove-svc.sh "$REPO"
+    sleep 1
+    ./delete.sh "$REPO" "$NAME"
   fi
 done
