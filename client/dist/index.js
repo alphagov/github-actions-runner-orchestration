@@ -23,9 +23,7 @@ const getItem = (itemName, defaultStr = null) => {
 
 
 function make_api_request(action, garo_url, github_token, github_commit, postObj) {
-
   const https = __nccwpck_require__(211);
-
   const api_uri = new URL(garo_url);
 
   const current_time = Math.floor(new Date().getTime() / 1000).toString();
@@ -51,9 +49,7 @@ function make_api_request(action, garo_url, github_token, github_commit, postObj
   }
 
   const data = JSON.stringify(postObj);
-
   const signature = crypto.createHmac('sha512', github_token).update(data).digest('hex');
-
   const options = {
     hostname: api_uri.hostname,
     port: 443,
@@ -68,24 +64,27 @@ function make_api_request(action, garo_url, github_token, github_commit, postObj
     }
   }
 
-  const req = https.request(options, res => {
-    console.log(`statusCode: ${res.statusCode}`)
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, res => {
+      console.log(`statusCode: ${res.statusCode}`)
 
-    res.on('data', d => {
-      const data_resp = d.toString()
-      if (data_resp != "error") {
-        return JSON.parse(data_resp)
-      }
-      throw "bad response";
+      res.on('data', d => {
+        const data_resp = d.toString()
+        if (data_resp != "error") {
+          resolve(JSON.parse(data_resp))
+        } else {
+          reject("bad response");
+        }
+      })
     })
-  })
 
-  req.on('error', error => {
-    throw error;
-  })
+    req.on('error', error => {
+      reject(error);
+    });
 
-  req.write(data)
-  req.end()
+    req.write(data);
+    req.end();
+  });
 }
 
 
