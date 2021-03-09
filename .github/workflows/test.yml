@@ -30,4 +30,4 @@ jobs:
           GARO_URL: '${{ secrets.GARO_URL }}'
 
       - name: Get the output runner name
-        run: echo "The time was ${{ steps.garo-client.outputs.name }}"
+        run: echo "Name: ${{ steps.garo-client.outputs.name }}"

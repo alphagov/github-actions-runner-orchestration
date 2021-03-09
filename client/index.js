@@ -81,16 +81,6 @@ function make_api_request(action, garo_url, github_token, github_commit, postObj
 }
 
 
-function setOutputs(result) {
-  if (result["runnerstate"] == "started") {
-    core.setOutput("name", result["name"]);
-    core.setOutput("runnerstate", result["runnerstate"]);
-    return true;
-  }
-  return false;
-}
-
-
 async function run() {
   try {
     const wait_for_start = getItem('WAIT_FOR_START', "true");
@@ -125,7 +115,7 @@ async function run() {
     }
 
     if (action == "start") {
-      const result = make_api_request(
+      const result = await make_api_request(
         "start",
         garo_url,
         github_token,
@@ -133,11 +123,14 @@ async function run() {
         postObj,
         dryrun
       )
+
       console.log("wait_for_start:", wait_for_start);
+      console.log("result:", result);
+
       if (result["runnerstate"] == "started") {
         console.log("Runner already started:", result);
-        setOutputs(result);
-        return;
+        core.setOutput("name", result["name"]);
+        core.setOutput("runnerstate", result["runnerstate"]);
       }
       if (result["runnerstate"] == "starting" && wait_for_start) {
         console.log("Runner starting:", result);
@@ -155,7 +148,9 @@ async function run() {
             dryrun
           );
 
-          if (setOutputs(state_result)) {
+          if (state_result["runnerstate"] == "started") {
+            core.setOutput("name", result["name"]);
+            core.setOutput("runnerstate", result["runnerstate"]);
             break;
           }
         }
