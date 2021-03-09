@@ -1,0 +1,60 @@
+name: 'Hello World'
+description: 'Greet someone and record the time'
+inputs:
+  GARO_URL:
+    description: 'URL for the GARO API'
+    required: true
+  GITHUB_TOKEN:
+    description: 'GitHub Token (do not set in settings)'
+    required: true
+  REPO:
+    description: 'In format: org/repo'
+    required: true
+  GITHUB_COMMIT:
+    description: 'Hash of the latest commit'
+    required: true
+  RUNNER_ACID:
+    description: 'AWS account ID where to deploy (requires roles to be in place)'
+    required: true
+  RUNNER_EXID:
+    description: 'External ID on the AWS IAM role'
+    required: true
+
+  ACTION:
+    description: 'Action: start | state'
+    required: false
+    default: 'start'
+  WAIT_FOR_START:
+    description: 'Whether to wait: yes | no'
+    required: false
+    default: 'yes'
+  RUNNER_SUBNET:
+    description: 'Subnet where to start the runner'
+    required: false
+  RUNNER_SG:
+    description: 'Security group to give the runner'
+    required: false
+  RUNNER_TYPE:
+    description: 'Type of runner: spot | ondemand'
+    required: false
+    default: 'spot'
+  RUNNER_REGION:
+    description: 'AWS region name for the runner'
+    required: false
+    default: 'eu-west-2'
+  RUNNER_TIMEOUT:
+    description: 'Timeout of the runner'
+    required: false
+    default: '3600'
+  RUNNER_NAME:
+    description: 'Name of the runner'
+    required: false
+    default: ''
+outputs:
+  name:
+    description: 'Runner name'
+  runnerstate:
+    description: 'Runner state'
+runs:
+  using: 'node12'
+  main: 'index.js'
