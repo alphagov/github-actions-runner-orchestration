@@ -5,6 +5,8 @@ terraform/.terraform.*
 terraform/terraform.tf*
 terraform/*.tfvars
 
+client/node_modules/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
