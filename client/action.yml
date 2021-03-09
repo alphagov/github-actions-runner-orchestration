@@ -57,4 +57,4 @@ outputs:
     description: 'Runner state'
 runs:
   using: 'node14'
-  main: 'index.js'
+  main: 'dist/index.js'
