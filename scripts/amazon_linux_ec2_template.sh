@@ -26,7 +26,6 @@ yum install -y aws-cli jq
 
 GARO="alphagov/github-actions-runner-orchestration"
 GURL="https://raw.githubusercontent.com/$GARO/main/scripts/instance_watcher.sh"
-GURL="https://gist.githubusercontent.com/OllieJC/efbf38ae8045d733e3007739723e1d33/raw/273191aeaa6ed15efc5fcdf2a9fe553c3792746c/test_runner_shutdown_script.sh"
 curl -LO "$GURL"
 chmod +x ./*.sh
 ./test_runner_shutdown_script.sh &
