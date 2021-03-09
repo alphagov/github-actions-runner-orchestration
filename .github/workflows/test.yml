@@ -16,7 +16,7 @@ jobs:
 
       - name: Get Runner
         uses: ./client # Uses an action in the root directory
-        id: garo-client
+        id: garo_client
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
@@ -30,4 +30,4 @@ jobs:
           GARO_URL: '${{ secrets.GARO_URL }}'
 
       - name: Get the output runner name
-        run: echo "Name: ${{ steps.garo-client.outputs.name }}"
+        run: echo "Name: ${{ steps.garo_client.outputs.name }}"
