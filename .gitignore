@@ -1,3 +1,10 @@
+.build
+.target
+terraform/.terraform/
+terraform/.terraform.*
+terraform/terraform.tf*
+terraform/*.tfvars
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
