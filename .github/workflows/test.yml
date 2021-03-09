@@ -22,7 +22,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'spot'
           REPO: 'alphagov/github-actions-runner-orchestration'
-          GITHUB_COMMIT: $GITHUB_SHA
+          GITHUB_COMMIT: '${{ github.GITHUB_SHA }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
           RUNNER_SG: '${{ secrets.RUNNER_SG }}'
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
