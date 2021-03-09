@@ -15,7 +15,7 @@ const getItem = (itemName, defaultStr = null) => {
 }
 
 
-async function make_api_request(action, garo_url, github_token, github_commit, postObj) {
+function make_api_request(action, garo_url, github_token, github_commit, postObj) {
 
   const https = require('https');
 
@@ -65,9 +65,7 @@ async function make_api_request(action, garo_url, github_token, github_commit, p
     console.log(`statusCode: ${res.statusCode}`)
 
     res.on('data', d => {
-      console.log("Data response:");
       const data_resp = d.toString()
-      console.log(data_resp);
       if (data_resp != "error") {
         return JSON.parse(data_resp)
       }
@@ -81,6 +79,16 @@ async function make_api_request(action, garo_url, github_token, github_commit, p
 
   req.write(data)
   req.end()
+}
+
+
+function setOutputs(result) {
+  if (result["runnerstate"] == "started") {
+    core.setOutput("name", result["name"]);
+    core.setOutput("runnerstate", result["runnerstate"]);
+    return true;
+  }
+  return false;
 }
 
 
@@ -116,25 +124,25 @@ async function run() {
       postObj["sg"] = rSg
     }
 
-
-    let result = {"name": "", "runnerstate": "failure"}
-
     if (action == "start") {
-      result = await make_api_request(
+      const result = make_api_request(
         "start",
         garo_url,
         github_token,
         github_commit,
         postObj
-      );
-
+      )
+      if (result["runnerstate"] == "started") {
+        setOutputs(result);
+        return;
+      }
       if (result["runnerstate"] == "starting" && wait_for_start) {
         let i = 0;
         while (i < 10) {
           i++;
           await wait(20000);
 
-          const state_result = await make_api_request(
+          const state_result = make_api_request(
             "state",
             garo_url,
             github_token,
@@ -142,18 +150,16 @@ async function run() {
             postObj
           );
 
-          if (state_result["runnerstate"] == "started") {
-            result = state_result;
+          if (setOutputs(state_result)) {
             break;
           }
         }
       }
     }
 
-    core.setOutput("name", result.name);
-    core.setOutput("runnerstate", result.runnerstate);
-
-  } catch (error) {
+  }
+  catch (error)
+  {
     if (typeof(error) == "object" && "message" in error)
     {
       core.setFailed(error.message);
