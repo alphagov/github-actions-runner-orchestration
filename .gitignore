@@ -5,6 +5,8 @@ terraform/.terraform.*
 terraform/terraform.tf*
 terraform/*.tfvars
 
+client/node_modules/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -17,7 +19,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+./dist/
 downloads/
 eggs/
 .eggs/

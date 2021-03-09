@@ -5,12 +5,15 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js",
-    "test": "npm run lint"
+    "prepare": "ncc build index.js -o dist --source-map",
+    "test": "npm run lint",
+    "all": "npm run test && npm run prepare"
   },
   "author": "alphagov",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.6"
+    "@actions/core": "^1.2.6",
+    "@vercel/ncc": "^0.27.0"
   },
   "devDependencies": {
     "eslint": "^7.21.0"

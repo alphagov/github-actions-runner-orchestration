@@ -1,5 +1,5 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Get Runner'
+description: 'Get the GitHub Action runner'
 inputs:
   GARO_URL:
     description: 'URL for the GARO API'
@@ -56,5 +56,5 @@ outputs:
   runnerstate:
     description: 'Runner state'
 runs:
-  using: 'node12'
+  using: 'node14'
   main: 'index.js'
