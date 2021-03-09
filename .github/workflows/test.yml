@@ -5,6 +5,7 @@ on:
 
 jobs:
   hello_world_job:
+    environment: personal_test
     runs-on: ubuntu-latest
     name: A job to test the runners
     steps:
