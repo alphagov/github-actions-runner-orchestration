@@ -15,14 +15,14 @@ const getItem = (itemName, defaultStr = null) => {
 }
 
 
-function make_api_request(action, garo_url, github_token, github_commit, postObj) {
+function make_api_request(action, garo_url, github_token, github_commit, postObj, dryrun=false) {
   const https = require('https');
   const api_uri = new URL(garo_url);
 
   const current_time = Math.floor(new Date().getTime() / 1000).toString();
   postObj.time = current_time;
 
-  postObj.dryrun = true;
+  postObj.dryrun = dryrun;
 
   if (action == "start")
   {
@@ -98,6 +98,7 @@ async function run() {
     const garo_url = getItem('GARO_URL');
     const github_token = getItem('GITHUB_TOKEN');
     const github_commit = getItem('GITHUB_COMMIT');
+    const dryrun = (getItem('DRYRUN', 'false') == 'true');
 
     let postObj = {
       repo: getItem('REPO'),
@@ -129,7 +130,8 @@ async function run() {
         garo_url,
         github_token,
         github_commit,
-        postObj
+        postObj,
+        dryrun
       )
       if (result["runnerstate"] == "started") {
         setOutputs(result);
@@ -146,7 +148,8 @@ async function run() {
             garo_url,
             github_token,
             github_commit,
-            postObj
+            postObj,
+            dryrun
           );
 
           if (setOutputs(state_result)) {
