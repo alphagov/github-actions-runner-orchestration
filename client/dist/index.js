@@ -71,11 +71,17 @@ async function make_api_request(action, garo_url, github_token, github_commit, p
   const req = https.request(options, res => {
     console.log(`statusCode: ${res.statusCode}`)
 
-    res.on('data', d => {
+    let data = '';
+
+    req.on('data', chunk => {
+      data += chunk;
+    })
+
+    req.on('end', () => {
       console.log("Data response:");
-      console.log(d);
-      if (d != "error") {
-        return JSON.parse(d)
+      console.log(data);
+      if (data != "error") {
+        return JSON.parse(data)
       }
       throw "bad response";
     })
