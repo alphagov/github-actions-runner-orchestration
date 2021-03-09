@@ -4,10 +4,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  hello_world_job:
+  get-runner:
     environment: personal_test
     runs-on: ubuntu-latest
     name: A job to test the runners
+    outputs:
+      name: ${{ steps.garoclient.outputs.name }}
+      runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
     steps:
       # To use this repository's private action,
       # you must check out the repository
@@ -29,5 +32,19 @@ jobs:
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: '${{ secrets.GARO_URL }}'
 
-      - name: Get the output runner name
-        run: echo "Name ${{ steps.garoclient.outputs.name }}"
+      - name: Output runner details
+        run: |
+          echo "Name ${{ steps.garoclient.outputs.name }}"
+          echo "Name ${{ steps.garoclient.outputs.runnerstate }}"
+  use-runner:
+    runs-on: [self-hosted, linux, spot]
+    needs: get-runner
+    steps:
+    - run: |
+        echo "Hello world!"
+        echo ""
+        aws sts get-caller-identity
+
+        echo "Runner name: ${{ needs.get-runner.outputs.name }}"
+        echo "Runner name: ${{ needs.get-runner.outputs.runnerstate }}"
+        echo ""
