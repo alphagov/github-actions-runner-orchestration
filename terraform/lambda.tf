@@ -65,7 +65,7 @@ resource "aws_lambda_function" "orchestrator_lambda" {
 
   environment {
     variables = {
-      DEBUG = "1"
+      DEBUG = "0"
     }
   }
 

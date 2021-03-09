@@ -28,7 +28,7 @@ GARO="alphagov/github-actions-runner-orchestration"
 GURL="https://raw.githubusercontent.com/$GARO/main/scripts/instance_watcher.sh"
 curl -LO "$GURL"
 chmod +x ./*.sh
-./test_runner_shutdown_script.sh &
+./instance_watcher.sh &
 
 echo "Getting PAT from SSM '/github/runner/pat'"
 RAWPAT=$(aws ssm get-parameter --name "/github/runner/pat" --region '{region}' \

@@ -14,7 +14,11 @@ while true; do
     echo "------------------"
     echo "Shutting down, expiry was: $EXPIRY"
     echo "------------------"
-    sleep 20 && sudo shutdown -h now &
+
+    aws ec2 create-tags --region "eu-west-2" \
+      --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=removing"
+
+    sleep 30 && sudo shutdown -h now &
     ./remove-svc.sh "$REPO"
     sleep 1
     ./delete.sh "$REPO" "$NAME"

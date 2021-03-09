@@ -12,6 +12,9 @@ from http_helper import *
 from utils import envVar
 
 
+github_url = "https://github.com/alphagov/github-actions-runner-orchestration"
+
+
 def lambda_handler(event, context):
     """
 
@@ -42,15 +45,29 @@ def actual_handler(event, context):
     >>> t = actual_handler({}, {})
     >>> "Error" in t
     True
-    >>> t["Error"].startswith("Missing path")
+    >>> t["Error"].startswith("httpMethod not set")
     True
 
-    >>> t = actual_handler({"path": "/status"}, {})
+    >>> t = actual_handler({"path": "/", "httpMethod": "GET"}, {})
+    >>> "Error" not in t
+    True
+    >>> 302 == t["statusCode"]
+    True
+    >>> github_url in t["body"]
+    True
+    >>> github_url in t["headers"]["Location"]
+    True
+
+    >>> t = actual_handler({"path": "/status", "httpMethod": "GET"}, {})
     >>> "Error" not in t
     True
     >>> 200 == t["statusCode"]
     True
     >>> "ok" in t["body"]
+    True
+
+    >>> t = actual_handler({"path": "/", "httpMethod": "POST"}, {})
+    >>> 405 == t["statusCode"]
     True
 
     >>> with open('tests/fixtures/example.json') as json_file:
@@ -66,21 +83,43 @@ def actual_handler(event, context):
     try:
         response = {}
 
+        method = None
+        if "httpMethod" in event:
+            method = event["httpMethod"]
+        else:
+            raise Exception("httpMethod not set")
+
         path = ""
         if "path" in event:
             path = event["path"]
             if path not in ("/start", "/status", "/stop", "/state"):
-                raise Exception("Unknown path")
-        else:
-            raise Exception("Missing path")
+                # unknown path, reset:
+                path = ""
 
-        if path == "/status":
+        if path == "/status" and method == "GET":
             return {
                 "statusCode": 200,
                 "isBase64Encoded": False,
                 "headers": {"Content-Type": "application/json"},
                 "body": '{"status": "ok"}',
             }
+
+        # if path is not set, handle here:
+        if not path:
+            if method == "GET":
+                return {
+                    "statusCode": 302,
+                    "isBase64Encoded": False,
+                    "headers": {"Location": github_url, "Content-Type": "text/html"},
+                    "body": f'<a href="{github_url}">{github_url}</a>',
+                }
+            else:
+                return {
+                    "statusCode": 405,
+                    "isBase64Encoded": False,
+                    "headers": {"Content-Type": "text/html"},
+                    "body": "Method Not Allowed",
+                }
 
         if "x-github-token" not in event["headers"]:
             raise Exception("Missing X-GitHub-Token")
@@ -113,7 +152,7 @@ def actual_handler(event, context):
         if "AccessKeyId" not in credentials:
             raise Exception("bad credentials")
 
-        if path == "/start":
+        if path == "/start" and method == "POST":
             ec2 = startRunnerFromBody(body_qs, credentials)
 
             if not ec2:
@@ -126,21 +165,11 @@ def actual_handler(event, context):
                 "body": json.dumps(ec2, default=str),
             }
 
-        if path == "/state":
+        if path == "/state" and method == "POST":
             running_ec2 = currentRunnerExistsByBody(body_qs, credentials)
 
             if not running_ec2:
                 raise Exception(f"Failed to details for: {body_qs['name']}")
-
-            # TODO: check ready tag
-            if "region" in body_qs:
-                region = body_qs["region"]
-            else:
-                region = ""
-
-            state = getRunnerStateTag(running_ec2["InstanceId"], region, credentials)
-
-            running_ec2["State"] = state
 
             return {
                 "statusCode": 200,
@@ -220,19 +249,20 @@ def logEvent(request: dict, response: dict, error: str, with_redaction=True) -> 
     if error:
         lg["error"] = error
 
+    res = json.dumps(lg, default=str)
+
     if with_redaction:
         redacted = "REDACTED"
 
-        if "headers" in lg["req"]:
-            if "x-github-token" in lg["req"]["headers"]:
-                lg["req"]["headers"]["x-github-token"] = redacted
+        if "headers" in request:
+            if "x-github-token" in request["headers"]:
+                res = res.replace(request["headers"]["x-github-token"], redacted)
 
-        if "body" in lg["req"]:
-            lg["req"]["body"] = redacted
+        if "body" in request:
+            res = res.replace(request["body"], redacted)
 
-        if "body" in lg["res"]:
-            lg["res"]["body"] = redacted
+        if "body" in response:
+            res = res.replace(response["body"], redacted)
 
-    res = json.dumps(lg, default=str)
     print(res, file=sys.stderr)
     return res

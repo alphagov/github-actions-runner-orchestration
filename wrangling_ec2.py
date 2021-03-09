@@ -93,47 +93,24 @@ def getLatestAmzn2Image(region: str, credentials: dict) -> dict:
     raise Exception("Error getting latest Amazon Linux 2")
 
 
-def getRunnerStateTag(instanceid: str, region: str, credentials: dict) -> str:
-    if not region:
-        region = EC2_DEFAULT_REGION
-
-    client = getEc2Client(credentials, region)
-
-    filters = [
-        {"Name": "instance-id", "Values": [instanceid]},
-        {"Name": "instance-state-name", "Values": ["pending ", "running"]},
-    ]
-
-    response = client.describe_instances(Filters=filters, MaxResults=30)
-
-    if "Reservations" in response:
-        if len(response["Reservations"]) >= 1:
-            if "Instances" in response["Reservations"][0]:
-                if len(response["Reservations"][0]["Instances"]) >= 1:
-                    tags = response["Reservations"][0]["Instances"][0]["Tags"]
-                    for tag in tags:
-                        if tag["Key"] == "RunnerState":
-                            return tag["Value"]
-
-    return None
-
-
 def updateTimeoutTag(
     instanceid: str, timeout: int, region: str, credentials: dict
-) -> bool:
+) -> str:
     if not region:
         region = EC2_DEFAULT_REGION
+
+    grt = _timeoutTagValue(timeout)
 
     client = getEc2Client(credentials, region)
 
     response = client.create_tags(
-        Resources=[instanceid],
-        Tags=[{"Key": "GitHubRunnerTimeout", "Value": _timeoutTagValue(timeout)},],
+        Resources=[instanceid], Tags=[{"Key": "GitHubRunnerTimeout", "Value": grt}],
     )
 
     if "ResponseMetadata" in response:
-        return True
-    return False
+        return grt
+
+    return None
 
 
 def currentRunnerExistsByBody(body_qs: dict, credentials: dict) -> str:
@@ -152,7 +129,9 @@ def currentRunnerExistsByBody(body_qs: dict, credentials: dict) -> str:
 def currentRunnerExistsByType(
     type: str, additional_label: str, region: str, credentials: dict,
 ) -> str:
-    filters = [{"Name": "tag:Name", "Values": [f"github-runner-{type}-*"]}]
+    filters = [
+        {"Name": "tag:Name", "Values": [f"github-runner-{type}-*"]},
+    ]
 
     if additional_label:
         filters.append({"Name": "tag:Label", "Values": ["additional_label"]})
@@ -163,23 +142,39 @@ def currentRunnerExistsByType(
 def _currentRunnerExists(filters: list, region: str, credentials: dict) -> dict:
     client = getEc2Client(credentials, region)
 
-    filters.append({"Name": "instance-state-name", "Values": ["pending ", "running"]})
+    filters.append({"Name": "tag:RunnerState", "Values": ["star*"]})
+    filters.append({"Name": "instance-state-name", "Values": ["pending", "running"]})
 
     response = client.describe_instances(Filters=filters, MaxResults=30)
 
-    print(json.dumps(response, default=str))
+    res = {}
 
     if "Reservations" in response:
         if len(response["Reservations"]) >= 1:
             if "Instances" in response["Reservations"][0]:
                 if len(response["Reservations"][0]["Instances"]) >= 1:
+
+                    res.update(
+                        {
+                            "instanceid": response["Reservations"][0]["Instances"][0][
+                                "InstanceId"
+                            ]
+                        }
+                    )
+
                     tags = response["Reservations"][0]["Instances"][0]["Tags"]
-                    iid = response["Reservations"][0]["Instances"][0]["InstanceId"]
+
                     for tag in tags:
                         if tag["Key"] == "Name":
-                            return {"InstanceId": iid, "Name": tag["Value"]}
+                            res.update({"name": tag["Value"]})
 
-    return {}
+                        if tag["Key"] == "GitHubRunnerTimeout":
+                            res.update({"updated_expiry_time": tag["Value"]})
+
+                        if tag["Key"] == "RunnerState":
+                            res.update({"runnerstate": tag["Value"]})
+
+    return res
 
 
 def startRunnerFromBody(body_items: dict, credentials: dict) -> bool:
@@ -208,18 +203,20 @@ def startRunnerFromBody(body_items: dict, credentials: dict) -> bool:
         timeout = EC2_DEFAULT_TIMEOUT
 
     cre = currentRunnerExistsByType(type, additional_label, region, credentials)
-
     if cre:
-        utt = updateTimeoutTag(cre["InstanceId"], timeout, region, credentials)
-
-        return {
-            "status": "exists",
-            "name": cre["Name"],
-            "additional_label": additional_label,
-            "type": type,
-            "instanceid": cre["InstanceId"],
-            "updated_expiry_time": utt,
-        }
+        if "updated_expiry_time" in cre:
+            # if the timeout has more than 45 seconds left:
+            if int(cre["updated_expiry_time"]) >= int(time.time()) + 45:
+                utt = updateTimeoutTag(cre["instanceid"], timeout, region, credentials)
+                if utt:
+                    cre.update(
+                        {
+                            "additional_label": additional_label,
+                            "type": type,
+                            "updated_expiry_time": utt,
+                        }
+                    )
+                    return cre
 
     if "instanceRoleArn" in body_items:
         instanceRoleArn = body_items["instanceRoleArn"]
@@ -261,7 +258,7 @@ def startRunnerFromBody(body_items: dict, credentials: dict) -> bool:
         credentials=credentials,
     )
     return {
-        "status": "starting",
+        "runnerstate": "starting",
         "name": name,
         "additional_label": additional_label,
         "type": type,
