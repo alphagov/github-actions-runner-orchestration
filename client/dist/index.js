@@ -140,11 +140,14 @@ async function run() {
         postObj,
         dryrun
       )
+      console.log("wait_for_start:", wait_for_start);
       if (result["runnerstate"] == "started") {
+        console.log("Runner already started:", result);
         setOutputs(result);
         return;
       }
       if (result["runnerstate"] == "starting" && wait_for_start) {
+        console.log("Runner starting:", result);
         let i = 0;
         while (i < 10) {
           i++;
