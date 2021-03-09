@@ -4,11 +4,14 @@
   "description": "GitHub Actions Runner Orchestration Client",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node index.js"
   },
   "author": "alphagov",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
+  },
   "devDependencies": {},
   "repository": {
     "type": "git",
