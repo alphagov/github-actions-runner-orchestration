@@ -17,7 +17,7 @@ def extractAndValidateBody(
     Basic parsing of the body, including optional validation of a HMAC, to a dict
 
     >>> t = int(time.time())
-    >>> valid_body = f"subnet=123&sg=456&repo=789&time={t}"
+    >>> valid_body = f'{{ "subnet": "123", "sg": "456", "repo": "789", "time": {t} }}'
     >>> valid_b64b = base64.b64encode(valid_body.encode("utf-8")).decode("utf-8")
 
     >>> test1 = extractAndValidateBody(valid_b64b, isBase64=True, with_validate=False)
@@ -32,7 +32,7 @@ def extractAndValidateBody(
     >>> test2
     {'subnet': '123', 'sg': '456', 'repo': '789'}
 
-    >>> kinda_valid = f"subnet= 123&sg= 456& repo=789 &time ={t}"
+    >>> kinda_valid = f'{{ "subnet": "123", "sg": "456", "repo": "789", "time": {t} }}'
     >>> test3 = extractAndValidateBody(kinda_valid, with_validate=False)
     >>> test3.pop("time") != "0"
     True
@@ -48,14 +48,22 @@ def extractAndValidateBody(
     >>> test4
     {'subnet': '123', 'sg': '456', 'repo': '789'}
 
+    >>> key = "abcdefg"
+    >>> h = hmac.new(key.encode("utf-8"), valid_body.encode("utf-8"), hashlib.sha512)
+    >>> test5 = extractAndValidateBody(valid_body, key=key, signature=h.hexdigest())
+    >>> test5.pop("time") != "0"
+    True
+    >>> test5
+    {'subnet': '123', 'sg': '456', 'repo': '789'}
+
     >>> try:
-    ...     extractAndValidateBody(key="12345", body="sig=1234")
+    ...     extractAndValidateBody(key="12345", body="{}")
     ... except Exception as e:
     ...     print(e)
     key or signature missing
 
     >>> try:
-    ...     extractAndValidateBody("subnet=123&sg=456&repo=789&time=1015213801", with_validate=False)
+    ...     extractAndValidateBody('{"subnet": "123", "sg": "456", "repo": "789", "time": 1015213801}', with_validate=False)
     ... except Exception as e:
     ...     print(e)
     request expired
@@ -69,9 +77,7 @@ def extractAndValidateBody(
         dec_body = base64.b64decode(body.encode("utf-8"))
         body = dec_body.decode("utf-8")
 
-    body_qs = {
-        x.split("=")[0].strip(): x.split("=")[1].strip() for x in body.split("&")
-    }
+    body_qs = json.loads(body)
 
     if not all(x in body_qs for x in ["time"]):
         raise Exception("missing required body item")
@@ -93,7 +99,7 @@ def extractAndValidateBody(
         h = hmac.new(key_bytes, body.encode("utf-8"), hashlib.sha512)
         res = h.hexdigest()
 
-        if res == sig:
+        if res == signature:
             return body_qs
         else:
             raise Exception("Bad signature")

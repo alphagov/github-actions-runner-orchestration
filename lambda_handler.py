@@ -70,12 +70,18 @@ def actual_handler(event, context):
     >>> 405 == t["statusCode"]
     True
 
+    >>> import hmac
+    >>> import hashlib
+    >>> key = "abcdefg"
     >>> with open('tests/fixtures/example.json') as json_file:
     ...   example = json.load(json_file)
+    ...   example["body"] = example["body"].replace("111", str(int(time.time())))
+    ...   h = hmac.new(key.encode("utf-8"), example["body"].encode("utf-8"), hashlib.sha512)
+    ...   example["headers"]["x-github-signature"] = h.hexdigest()
     >>> "httpMethod" in example
     True
     >>> t = actual_handler(example, {})
-    >>> t["Error"].startswith("Missing X-GitHub-Token")
+    >>> t["Error"].startswith("Failed the token check for: 789")
     True
 
     """
@@ -132,9 +138,9 @@ def actual_handler(event, context):
 
         body_qs = extractAndValidateBody(
             event["body"],
+            key=event["headers"]["x-github-token"],
             signature=event["headers"]["x-github-signature"],
             isBase64=event["isBase64Encoded"],
-            with_validate=False,
         )
 
         token_check = checkGitHubToken(
@@ -147,6 +153,16 @@ def actual_handler(event, context):
             raise Exception(f"Failed the token check for: {body_qs['repo']}")
 
         # do authenticated AWS actions from here on
+
+        if "dryrun" in body_qs and body_qs["dryrun"]:
+            return {
+                "statusCode": 200,
+                "isBase64Encoded": False,
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps(
+                    {"runnerstate": "started", "name": "dryrun"}, default=str
+                ),
+            }
 
         credentials = assumeRole(body_qs)
         if "AccessKeyId" not in credentials:
@@ -202,43 +218,33 @@ def logEvent(request: dict, response: dict, error: str, with_redaction=True) -> 
     True
 
     >>> res = logEvent( \
-                {"httpMethod": "POST", "body": "234"}, \
-                {"statusCode": 200, "body": "good"}, \
-                "abc", with_redaction=False \
+                {"httpMethod": "POST", "headers": {"x-github-token": "123"}}, \
+                {"statusCode": 200, "body": ""}, \
+                "abc", with_redaction=True \
               )
-    >>> exp = { \
-          "error": "abc", \
-          "req": {"httpMethod": "POST", "body": "234"}, \
-          "res": {"statusCode": 200, "body": "good"} \
-        }
     >>> jr = json.loads(res)
     >>> t = jr.pop("time")
     >>> type(t)
     <class 'int'>
     >>> t > 0
     True
-    >>> jr == exp
-    True
+    >>> print(jr)
+    {'req': {'httpMethod': 'POST', 'headers': {'x-github-token': 'REDACTED'}}, 'res': {'statusCode': 200, 'body': ''}, 'error': 'abc'}
 
     >>> res = logEvent( \
                 {"httpMethod": "POST", "body": "123"}, \
                 {"statusCode": 500, "body": "bad"}, \
                 "abc" \
               )
-    >>> exp = { \
-          "error": "abc", \
-          "req": {"httpMethod": "POST", "body": "REDACTED"}, \
-          "res": {"statusCode": 500, "body": "REDACTED"} \
-        }
     >>> jr = json.loads(res)
     >>> t = jr.pop("time")
     >>> type(t)
     <class 'int'>
     >>> t > 0
     True
-    >>> jr == exp
-    True
-
+    >>> print(jr)
+    {'req': {'httpMethod': 'POST', 'body': '123'}, 'res': {'statusCode': 500, 'body': 'bad'}, 'error': 'abc'}
+    
     """
 
     lg = {
@@ -258,11 +264,11 @@ def logEvent(request: dict, response: dict, error: str, with_redaction=True) -> 
             if "x-github-token" in request["headers"]:
                 res = res.replace(request["headers"]["x-github-token"], redacted)
 
-        if "body" in request:
-            res = res.replace(request["body"], redacted)
+        # if "body" in request and request["body"]:
+        #    res = res.replace(request["body"], redacted)
 
-        if "body" in response:
-            res = res.replace(response["body"], redacted)
+        # if "body" in response and response["body"]:
+        #    res = res.replace(response["body"], redacted)
 
     print(res, file=sys.stderr)
     return res

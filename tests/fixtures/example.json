@@ -16,6 +16,8 @@
         "host": "",
         "pragma": "no-cache",
         "referer": "",
+        "x-github-token": "abcdefg",
+        "x-github-commitsha": "657678",
         "sec-fetch-dest": "document",
         "sec-fetch-mode": "navigate",
         "sec-fetch-site": "same-origin",
@@ -27,6 +29,6 @@
         "x-forwarded-port": "443",
         "x-forwarded-proto": "https"
     },
-    "body": "subnet=123&sg=456&repo=789&time=111",
+    "body": "{\"subnet\": \"123\", \"sg\": \"456\", \"repo\": \"789\", \"time\": 111}",
     "isBase64Encoded": false
 }
