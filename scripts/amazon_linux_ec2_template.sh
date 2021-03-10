@@ -5,7 +5,7 @@ EC2_TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
 
 curl -H "X-aws-ec2-metadata-token: $EC2_TOKEN" \
-  -v "http://169.254.169.254/latest/meta-data/instance-id" > region.txt
+  -v "http://169.254.169.254/latest/meta-data/instance-id" > instance_id.txt
 
 INSTANCE_ID=$(tr -cd '[:print:]' < instance_id.txt)
 export INSTANCE_ID=$INSTANCE_ID
