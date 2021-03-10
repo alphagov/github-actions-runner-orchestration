@@ -3,6 +3,8 @@
 while true; do
   sleep 30
 
+  cd "/opt/github/runner" || exit 1
+
   INSTANCE_ID=$(tr -cd '[:print:]' < instance_id.txt)
   REGION=$(tr -cd '[:print:]' < region.txt)
   REPO=$(tr -cd '[:print:]' < repo.txt)
@@ -17,8 +19,6 @@ while true; do
     --filters "Name=resource-id,Values=$INSTANCE_ID" \
     --region "$REGION" \
     | jq -r '.Tags | .[] | select(.Key == "GitHubRunnerTimeout").Value')
-
-  cd "/opt/github/runner" || exit 1
 
   if (( EXPIRY < $(date +%s) )); then
     echo "------------------"

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 echo "Starting user data"
 
+GRD="/opt/github/runner"
+mkdir -p "$GRD"
+cd "$GRD" || exit 1
+
 EC2_TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
 
@@ -14,10 +18,6 @@ if [ -z "$INSTANCE_ID" ]
 then
   sudo shutdown -h now
 fi
-
-GRD="/opt/github/runner"
-mkdir -p "$GRD"
-cd "$GRD" || exit 1
 
 echo -n '{region}' > region.txt
 echo -n 'github-runner-{type}-{uniqueid}' > name.txt
