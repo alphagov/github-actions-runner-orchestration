@@ -25,7 +25,7 @@ The [client](client/) will start up an instance and wait for it to be active:
 
 ```yml
 - name: Get Runner
-  uses: ./client # Uses an action in the root directory
+  uses: ./client
   id: garoclient
   with:
     ACTION: 'start'

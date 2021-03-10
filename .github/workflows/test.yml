@@ -12,13 +12,8 @@ jobs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
     steps:
-      # To use this repository's private action,
-      # you must check out the repository
-      - name: Checkout
-        uses: actions/checkout@v2
-
       - name: Get Runner
-        uses: ./client # Uses an action in the root directory
+        uses: alphagov/github-actions-runner-orchestration/client@main
         id: garoclient
         with:
           ACTION: 'start'
