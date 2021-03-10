@@ -48,12 +48,10 @@ yum install -y tar gzip util-linux dotnet-sdk-5.0 jq aws-cli
 
 echo "Adding github user"
 useradd github
-# shellcheck disable=SC1054
-{{
-  echo "export RUNNER_CFG_PAT='$RAWPAT'"
-  echo "export NAME='$NAME'"
-  echo "export REPO='$REPO'"
-}} >> /home/github/.bash_profile
+# shellcheck disable=SC2129
+echo "export RUNNER_CFG_PAT='$RAWPAT'" >> /home/github/.bash_profile
+echo "export NAME='$NAME'" >> /home/github/.bash_profile
+echo "export REPO='$REPO'" >> /home/github/.bash_profile
 
 echo "Downloading latest runner"
 

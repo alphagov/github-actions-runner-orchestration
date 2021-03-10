@@ -18,9 +18,9 @@ while true; do
     aws ec2 create-tags --region "eu-west-2" \
       --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=removing"
 
-    sleep 30 && sudo shutdown -h now &
+    sleep 45 && sudo shutdown -h now &
     ./remove-svc.sh "$REPO"
-    sleep 1
+    sleep 2
     ./delete.sh "$REPO" "$NAME"
   fi
 done
