@@ -60,13 +60,20 @@ function make_api_request(action, garo_url, github_token, github_commit, postObj
   return new Promise((resolve, reject) => {
     const req = https.request(options, res => {
       console.log(`statusCode: ${res.statusCode}`)
+      if (res.statusCode != 200) {
+        reject("bad response");
+      }
 
       res.on('data', d => {
         const data_resp = d.toString()
         if (data_resp != "error") {
-          resolve(JSON.parse(data_resp))
+          try {
+            resolve(JSON.parse(data_resp));
+          } catch (e) {
+            reject("failed to parse JSON");
+          }
         } else {
-          reject("bad response");
+          reject("error response");
         }
       })
     })
@@ -143,7 +150,7 @@ async function run() {
           console.log(`Starting wait: ${i}`)
           await wait(20000);
 
-          const state_result = make_api_request(
+          const state_result = await make_api_request(
             "state",
             garo_url,
             github_token,
