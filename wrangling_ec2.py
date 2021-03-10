@@ -38,7 +38,7 @@ def buildRunnerUserData2(
     >>> txt = base64.b64decode(b64).decode("utf-8")
     >>> "'github' '123,678'" in txt
     True
-    >>> "export RUNNER_CFG_PAT='$RAWPAT'" in txt
+    >>> "export RUNNER_CFG_PAT=$RAWPAT" in txt
     True
 
     """

@@ -32,7 +32,7 @@ chmod +x ./*.sh
 
 echo "Getting PAT from SSM '/github/runner/pat'"
 RAWPAT=$(aws ssm get-parameter --name "/github/runner/pat" --region '{region}' \
-  --with-decryption | jq -r ".[].Value")
+  --with-decryption | jq -r ".[].Value" | tr -cd '[:print:]')
 
 export RUNNER_CFG_PAT=$RAWPAT
 
@@ -49,9 +49,9 @@ yum install -y tar gzip util-linux dotnet-sdk-5.0 jq aws-cli
 echo "Adding github user"
 useradd github
 # shellcheck disable=SC2129
-echo "export RUNNER_CFG_PAT='$RAWPAT'" >> /home/github/.bash_profile
-echo "export NAME='$NAME'" >> /home/github/.bash_profile
-echo "export REPO='$REPO'" >> /home/github/.bash_profile
+echo "export RUNNER_CFG_PAT=$RAWPAT" | tr -cd '[:print:]\n' >> /home/github/.bash_profile
+echo "export NAME=$NAME" >> /home/github/.bash_profile
+echo "export REPO=$REPO" >> /home/github/.bash_profile
 
 echo "Downloading latest runner"
 

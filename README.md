@@ -25,7 +25,7 @@ The [client](client/) will start up an instance and wait for it to be active:
 
 ```yml
 - name: Get Runner
-  uses: ./client
+  uses: alphagov/github-actions-runner-orchestration/client@main
   id: garoclient
   with:
     ACTION: 'start'
