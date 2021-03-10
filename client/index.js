@@ -102,19 +102,24 @@ async function run() {
       timeout: getItem('RUNNER_TIMEOUT', "3600"),
     }
 
+    const rLabel = getItem('RUNNER_LABEL', "");
+    if (rLabel != "") {
+      postObj["label"] = rLabel;
+    }
+
     const rName = getItem('RUNNER_NAME', "");
     if (rName != "") {
-      postObj["name"] = rName
+      postObj["name"] = rName;
     }
 
     const rSub = getItem('RUNNER_SUBNET', "");
     if (rSub != "") {
-      postObj["subnet"] = rSub
+      postObj["subnet"] = rSub;
     }
 
     const rSg = getItem('RUNNER_SG', "");
     if (rSg != "") {
-      postObj["sg"] = rSg
+      postObj["sg"] = rSg;
     }
 
     if (action == "start") {

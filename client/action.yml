@@ -50,6 +50,10 @@ inputs:
     description: 'Name of the runner'
     required: false
     default: ''
+  RUNNER_LABEL:
+    description: 'Additional label for the runner'
+    required: false
+    default: ''
 outputs:
   name:
     description: 'Runner name'

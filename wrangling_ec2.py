@@ -134,7 +134,7 @@ def currentRunnerExistsByType(
     ]
 
     if additional_label:
-        filters.append({"Name": "tag:Label", "Values": ["additional_label"]})
+        filters.append({"Name": "tag:Label", "Values": [additional_label]})
 
     return _currentRunnerExists(filters, region, credentials)
 
