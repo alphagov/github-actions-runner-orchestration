@@ -4,13 +4,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  get-runner:
+  get-runners:
     environment: personal_test
     runs-on: ubuntu-latest
-    name: A job to test the runners
-    outputs:
-      name: ${{ steps.garoclient.outputs.name }}
-      runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - label: test1
+          type: spot
+        - label: test2
+          type: spot
+        - label: test3
+          type: ondemand
     steps:
       - name: Get Runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -18,7 +24,8 @@ jobs:
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-          RUNNER_TYPE: 'spot'
+          RUNNER_TYPE: ${{ matrix.type }}
+          RUNNER_LABEL: ${{ matrix.label }}
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -26,20 +33,65 @@ jobs:
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: '${{ secrets.GARO_URL }}'
+          RUNNER_TIMEOUT: '300'
 
       - name: Output runner details
         run: |
-          echo "Name ${{ steps.garoclient.outputs.name }}"
-          echo "State ${{ steps.garoclient.outputs.runnerstate }}"
-  use-runner:
-    runs-on: [self-hosted, linux, spot]
-    needs: get-runner
+          echo "::set-output name=runner-${{ matrix.type }}-${{ matrix.label }}-name::${{ steps.garoclient.outputs.name }}"
+          echo "::set-output name=runner-${{ matrix.type }}-${{ matrix.label }}-runnerstate::${{ steps.garoclient.outputs.runnerstate }}"
+
+  runner-details:
+    environment: personal_test
+    runs-on: ubuntu-latest
+    needs: get-runners
+    steps:
+      - name: Runner Details
+        run: |
+          echo "Test1:"
+          echo "Runner name: ${{ needs.get-runners.outputs.runner-spot-test1-name }}"
+          echo "Runner state: ${{ needs.get-runners.outputs.runner-spot-test1-runnerstate }}"
+          echo "Test2:"
+          echo "Runner name: ${{ needs.get-runners.outputs.runner-spot-test2-name }}"
+          echo "Runner state: ${{ needs.get-runners.outputs.runner-spot-test2-runnerstate }}"
+          echo "Test3:"
+          echo "Runner name: ${{ needs.get-runners.outputs.runner-ondemand-test3-name }}"
+          echo "Runner state: ${{ needs.get-runners.outputs.runner-ondemand-test3-runnerstate }}"
+
+  use-test1-runner:
+    runs-on: [self-hosted, linux, spot, test1]
+    needs: get-runners
     steps:
     - run: |
-        echo "Hello world!"
+        echo "Hello world from test1!"
         echo ""
         aws sts get-caller-identity
 
-        echo "Runner name: ${{ needs.get-runner.outputs.name }}"
-        echo "Runner state: ${{ needs.get-runner.outputs.runnerstate }}"
+        echo "Runner name: ${{ needs.get-runners.outputs.runner-spot-test1-name }}"
+        echo "Runner state: ${{ needs.get-runners.outputs.runner-spot-test1-runnerstate }}"
+        echo ""
+
+  use-test2-runner:
+    runs-on: [self-hosted, linux, spot, test2]
+    needs: get-runners
+    steps:
+    - run: |
+        echo "Hello world from test2!"
+        echo ""
+        aws sts get-caller-identity
+
+        echo "Runner name: ${{ needs.get-runners.outputs.runner-spot-test2-name }}"
+        echo "Runner state: ${{ needs.get-runners.outputs.runner-spot-test2-runnerstate }}"
+        echo ""
+
+  use-test3-runner:
+    runs-on: [self-hosted, linux, ondemand, test3]
+    needs: get-runners
+    steps:
+    - run: |
+        echo "Hello world from test3 (ondemand)!"
+        echo ""
+        aws sts get-caller-identity
+
+        echo "Runner name: ${{ needs.get-runners.outputs.runner-ondemand-test3-name }}"
+        echo "Runner state: ${{ needs.get-runners.outputs.runner-ondemand-test3-runnerstate }}"
         echo ""
