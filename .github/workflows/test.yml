@@ -35,7 +35,7 @@ jobs:
       - name: Output runner details
         run: |
           echo "Name ${{ steps.garoclient.outputs.name }}"
-          echo "Name ${{ steps.garoclient.outputs.runnerstate }}"
+          echo "State ${{ steps.garoclient.outputs.runnerstate }}"
   use-runner:
     runs-on: [self-hosted, linux, spot]
     needs: get-runner
@@ -46,5 +46,5 @@ jobs:
         aws sts get-caller-identity
 
         echo "Runner name: ${{ needs.get-runner.outputs.name }}"
-        echo "Runner name: ${{ needs.get-runner.outputs.runnerstate }}"
+        echo "Runner state: ${{ needs.get-runner.outputs.runnerstate }}"
         echo ""
