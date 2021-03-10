@@ -61,17 +61,13 @@ function make_api_request(action, garo_url, github_token, github_commit, postObj
     const req = https.request(options, res => {
       console.log(`statusCode: ${res.statusCode}`)
       if (res.statusCode != 200) {
-        reject("bad response");
+        resolve({"runnerstate": "Non-200"});
       }
 
       res.on('data', d => {
         const data_resp = d.toString()
         if (data_resp != "error") {
-          try {
-            resolve(JSON.parse(data_resp));
-          } catch (e) {
-            reject("failed to parse JSON");
-          }
+          resolve(JSON.parse(data_resp));
         } else {
           reject("error response");
         }
@@ -158,6 +154,8 @@ async function run() {
             postObj,
             dryrun
           );
+
+          console.log(state_result);
 
           if (state_result["runnerstate"] == "started") {
             core.setOutput("name", result["name"]);
