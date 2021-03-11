@@ -43,17 +43,14 @@ jobs:
         path: main
     - run: |
         ls -lah main
-        
+
         whoami
-        
-        sudo yum update
-        sudo yum install -y git
-        
-        git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-        sudo rm /usr/local/bin/tfenv || echo "No tfenv installed"
-        sudo rm /usr/local/bin/terraform || echo "No terraform installed"
-        sudo ln -s ~/.tfenv/bin/* /usr/local/bin > /dev/null
-        
+
+        sudo yum update -y
+
+        ls -lah /usr/local/bin
+        ls -lah /opt
+
         cd main/garo_terraform/
         tfenv install
         tfenv use
@@ -62,7 +59,7 @@ jobs:
         terraform workspace list
         terraform workspace select staging
         terraform plan
-        
+
 
 #  use-prod-runner:
 #    runs-on: [self-hosted, linux, ondemand, ondemand]
