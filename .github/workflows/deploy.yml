@@ -43,7 +43,12 @@ jobs:
         path: main
     - run: |
         source ~/.bash_profile
-        cd main/garo_terraform/
+        
+        cd main/
+        make test
+        make build
+        
+        cd garo_terraform/
         tfenv install
         tfenv use
         terraform init
