@@ -42,6 +42,7 @@ jobs:
       with:
         path: main
     - run: |
+        source ~/.bash_profile
         cd main/garo_terraform/
         tfenv install
         tfenv use
