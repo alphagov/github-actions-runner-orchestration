@@ -31,4 +31,6 @@ test-full: venv install-dev-dependencies test
 test: venv
 	source ./env/bin/activate;
 	python3.8 -m doctest -f *.py;
+
+test-scripts:
 	shellcheck scripts/*.sh
