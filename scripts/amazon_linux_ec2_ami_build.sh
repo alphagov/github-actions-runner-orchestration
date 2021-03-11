@@ -4,7 +4,7 @@ echo "Starting user data"
 yum update -y
 rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
 yum install -y jq git amazon-linux-extras tar gzip util-linux dotnet-sdk-5.0 \
-  unzip sudo yum-utils
+  unzip sudo yum-utils shellcheck xz
 yum groupinstall -y "Development Tools"
 
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
@@ -48,6 +48,13 @@ DCV="1.22.0"
 curl -L "https://github.com/docker/compose/releases/download/$DCV/docker-compose-$(uname -s)-$(uname -m)" \
   -o "/usr/local/bin/docker-compose"
 sudo chmod +x "/usr/local/bin/docker-compose"
+
+echo "Installing ShellCheck"
+scversion="stable" # or "v0.4.7", or "latest"
+curl -sLO "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz"
+tar -xvf ./*.tar.xz
+cp "shellcheck-${scversion}/shellcheck" /usr/bin/local
+rm -rf ./shellcheck*
 
 echo "Installing python"
 amazon-linux-extras enable python3.8
