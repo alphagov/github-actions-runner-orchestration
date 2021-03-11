@@ -5,9 +5,9 @@ on:
 
 jobs:
   staging-deploy-runner:
-    environment: personal_test
+    environment: aws_dev
     runs-on: ubuntu-latest
-    name: A job to test the runners
+    name: Get the staging deploy runner
     outputs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
@@ -47,7 +47,7 @@ jobs:
         path: main
     - run: |
         source ~/.bash_profile
-        
+
         cd main/
         make test-full
         make build-full
