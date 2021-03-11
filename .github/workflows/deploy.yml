@@ -49,6 +49,7 @@ jobs:
         sudo yum update -y
 
         ls -lah /usr/local/bin
+        sudo chown -r github:github /opt/tfenv/*
         export PATH="/usr/local/bin:$PATH"
 
         cd main/garo_terraform/
