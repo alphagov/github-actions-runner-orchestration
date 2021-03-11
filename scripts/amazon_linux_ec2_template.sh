@@ -70,7 +70,7 @@ echo 'github ALL=(ALL:ALL) ALL' | sudo tee -a /etc/sudoers
 echo "Installing common tools"
 
 sudo amazon-linux-extras enable python3.8
-sudo yum install python3.8
+sudo yum -y install python3.8
 
 git clone https://github.com/tfutils/tfenv.git ~/.tfenv
 sudo rm /usr/local/bin/tfenv || echo "No tfenv installed"
