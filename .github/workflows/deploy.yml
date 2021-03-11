@@ -1,4 +1,4 @@
-name: Deploy self-hosted runner
+name: Test and deploy to staging and production
 
 on:
   workflow_dispatch:
@@ -36,11 +36,11 @@ jobs:
 
   deploy-to-staging:
     name: Deploy to staging
+    needs: get-main-deploy-runner
     runs-on: [self-hosted, linux, from_prod, "${{ needs.get-main-deploy-runner.outputs.name }}"]
     defaults:
       run:
         shell: bash
-    needs: get-main-deploy-runner
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -63,10 +63,10 @@ jobs:
         terraform apply -auto-approve
 
   get-test-staging-runner:
-    environment: aws_dev
-    runs-on: ubuntu-latest
     name: Start a runner using the staging API
     needs: deploy-to-staging
+    environment: aws_dev
+    runs-on: ubuntu-latest
     outputs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
@@ -95,11 +95,11 @@ jobs:
 
   use-staging-runner:
     name: Test the staging runner
+    needs: get-test-staging-runner
     runs-on: [self-hosted, linux, "${{ needs.get-test-staging-runner.outputs.name }}"]
     defaults:
       run:
         shell: bash
-    needs: get-test-staging-runner
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -113,11 +113,11 @@ jobs:
 
   deploy-to-prod:
     name: Deploy to production
+    needs: [get-main-deploy-runner, use-staging-runner]
     runs-on: [self-hosted, linux, from_prod, "${{ needs.get-main-deploy-runner.outputs.name }}"]
     defaults:
       run:
         shell: bash
-    needs: get-main-deploy-runner
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -141,9 +141,9 @@ jobs:
 
   get-test-prod-runner:
     environment: aws_dev
+    needs: deploy-to-prod
     runs-on: ubuntu-latest
     name: Start a runner using the prod API
-    needs: deploy-to-staging
     outputs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
@@ -172,11 +172,11 @@ jobs:
 
   use-prod-runner:
     name: Test the production runner
+    needs: get-test-prod-runner
     runs-on: [self-hosted, linux, "${{ needs.get-test-prod-runner.outputs.name }}"]
     defaults:
       run:
         shell: bash
-    needs: get-test-prod-runner
     steps:
     - name: Checkout
       uses: actions/checkout@v2
