@@ -46,7 +46,7 @@ jobs:
         
         cd main/
         make test
-        make build
+        make build-full
         
         cd garo_terraform/
         tfenv install
