@@ -25,9 +25,9 @@ def currentCaller(region: str = STS_DEFAULT_REGION) -> dict:
 
     >>> try:
     ...   c = currentCaller()
-    ...   print(c)
     ... except botocore.exceptions.ClientError as e:
-    ...   "InvalidClientTokenId" in str(e)
+    ...   print("Test requires AWS account to run sts get-caller-identity")
+    >>> "UserId" in c
     True
 
     """
