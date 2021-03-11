@@ -18,11 +18,18 @@ clean:
 	rm -rf .build
 	rm -rf .target
 
+venv:
+	python3.8 -m venv env
+
 install-dev-dependencies:
-	python3.8 -m pip install -r requirements.txt -r requirements-dev.txt
+	( \
+		source path/to/virtualenv/bin/activate; \
+		python3.8 -m pip install -r requirements.txt \
+		  -r requirements-dev.txt --upgrade; \
+	)
 
-test-full: install-dev-dependencies test
+test-full: venv install-dev-dependencies test
 
-test:
+test: venv
 	python3.8 -m doctest -f *.py
 	shellcheck scripts/*.sh
