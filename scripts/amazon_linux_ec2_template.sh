@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 echo "Starting user data"
 
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
+unzip acv2.zip
+sudo ./aws/install
+
 GRD="/opt/github/runner"
 mkdir -p "$GRD"
 cd "$GRD" || exit 1
@@ -33,8 +37,11 @@ export REGION=$REGION
 export REPO=$REPO
 export NAME=$NAME
 
+aws ec2 create-tags --region "$REGION" \
+  --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=installing"
+
 yum update
-yum install -y aws-cli jq
+yum install -y jq
 
 GARO="alphagov/github-actions-runner-orchestration"
 GURL="https://raw.githubusercontent.com/$GARO/main/scripts/instance_watcher.sh"
@@ -57,7 +64,7 @@ fi
 echo "Installing GitHub runner dependencies"
 rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
 yum update
-yum install -y tar gzip util-linux dotnet-sdk-5.0 jq aws-cli
+yum install -y tar gzip util-linux dotnet-sdk-5.0
 
 echo "Adding github user"
 useradd github

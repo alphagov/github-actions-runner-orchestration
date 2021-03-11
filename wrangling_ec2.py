@@ -345,6 +345,8 @@ def _startOndemandRunner(
         {"Key": "GitHubRunnerTimeout", "Value": expiry_time},
         {"Key": "RunnerState", "Value": "pending"},
     ]
+    if additional_label:
+        tags.append({"Key": "Label", "Value": additional_label})
 
     response = client.run_instances(
         DryRun=False,

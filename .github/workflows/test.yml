@@ -33,7 +33,7 @@ jobs:
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: 'https://dev.co-cdio-garo.digital'
-          RUNNER_TIMEOUT: '300'
+          RUNNER_TIMEOUT: '3600'
 
   use-test1-runner:
     runs-on: [self-hosted, linux, spot, test1]
