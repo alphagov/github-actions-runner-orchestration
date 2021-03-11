@@ -22,6 +22,8 @@ echo "Adding github user"
 useradd github
 echo 'github ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers # pragma: allowlist secret
 
+sudo usermod -aG docker github
+
 echo "Installing nvm"
 NVMV="0.37.2"
 runuser -l github -c "curl -so- 'https://raw.githubusercontent.com/nvm-sh/nvm/v$NVMV/install.sh' | bash"
@@ -53,7 +55,7 @@ echo "Installing ShellCheck"
 scversion="stable"
 curl -sLO "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz"
 tar -xvf ./*.tar.xz
-cp "shellcheck-${scversion}/shellcheck" /usr/bin/local
+cp "shellcheck-${scversion}/shellcheck" /usr/local/bin
 rm -rf ./shellcheck*
 
 echo "Installing python"
