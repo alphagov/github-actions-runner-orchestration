@@ -34,7 +34,7 @@ jobs:
           RUNNER_TIMEOUT: '3600'
 
   use-staging-runner:
-    runs-on: [self-hosted, linux, spot, staging]d
+    runs-on: [self-hosted, linux, spot, staging]
     defaults:
       run:
         shell: bash
