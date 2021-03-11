@@ -45,7 +45,7 @@ jobs:
         source ~/.bash_profile
         
         cd main/
-        make test
+        make test-full
         make build-full
         
         cd garo_terraform/
