@@ -38,7 +38,8 @@ resource "aws_iam_role" "iam_for_ec2" {
             "ec2:DescribeTags",
             "ec2:DescribeImages",
             "ec2:DescribeInstances",
-            "ec2:RequestSpotInstances"
+            "ec2:RequestSpotInstances",
+            "iam:PassRole"
           ]
           Effect   = "Allow"
           Resource = "*"

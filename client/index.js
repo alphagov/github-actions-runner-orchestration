@@ -132,6 +132,10 @@ async function run() {
         dryrun
       )
 
+      if (result["runnerstate"] == "Non-200") {
+        throw 'Could not start the runner';
+      }
+
       console.log("wait_for_start:", wait_for_start);
 
       if (result["runnerstate"] == "started") {
