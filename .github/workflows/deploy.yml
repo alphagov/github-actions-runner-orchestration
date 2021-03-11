@@ -37,7 +37,7 @@ jobs:
   deploy-to-staging:
     name: Deploy to staging
     needs: get-main-deploy-runner
-    runs-on: [self-hosted, linux, from_prod, "${{ needs.get-main-deploy-runner.outputs.name }}"]
+    runs-on: [self-hosted, linux, from_prod, ondemand]
     defaults:
       run:
         shell: bash
@@ -96,7 +96,7 @@ jobs:
   use-staging-runner:
     name: Test the staging runner
     needs: get-test-staging-runner
-    runs-on: [self-hosted, linux, "${{ needs.get-test-staging-runner.outputs.name }}"]
+    runs-on: [self-hosted, linux, spot, staging_test_runner]
     defaults:
       run:
         shell: bash
@@ -173,7 +173,7 @@ jobs:
   use-prod-runner:
     name: Test the production runner
     needs: get-test-prod-runner
-    runs-on: [self-hosted, linux, "${{ needs.get-test-prod-runner.outputs.name }}"]
+    runs-on: [self-hosted, linux, spot, prod_test_runner]
     defaults:
       run:
         shell: bash
