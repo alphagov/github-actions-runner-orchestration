@@ -21,24 +21,13 @@ resource "aws_iam_role" "iam_for_ec2" {
       Statement = [
         {
           Action   = [
-            "ec2:DescribeSpotInstanceRequests",
-            "ec2:RunInstances"
-          ]
-          Effect   = "Allow"
-          Resource = "*"
-          "Condition": {
-            "StringLike": {
-              "aws:ResourceTag/Name": "github-runner-*"
-            }
-          }
-        },
-        {
-          Action   = [
             "ec2:CreateTags",
             "ec2:DescribeTags",
             "ec2:DescribeImages",
             "ec2:DescribeInstances",
             "ec2:RequestSpotInstances",
+            "ec2:DescribeSpotInstanceRequests",
+            "ec2:RunInstances",
             "iam:PassRole"
           ]
           Effect   = "Allow"

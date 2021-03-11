@@ -1,3 +1,8 @@
+resource "aws_iam_instance_profile" "profile_for_instances" {
+  name = "GitHubRunnerInstanceRole"
+  role = aws_iam_role.role_for_instances.name
+}
+
 resource "aws_iam_role" "role_for_instances" {
   name = "GitHubRunnerInstanceRole"
 
@@ -24,9 +29,11 @@ resource "aws_iam_role" "role_for_instances" {
         {
             "Effect": "Allow",
             "Action": [
-                "ssm:GetParameters"
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:GetParametersByPath",
             ],
-            "Resource": "arn:aws:ssm:*:*:parameter/github/runner/pat"
+            "Resource": "arn:aws:ssm:${var.region}:*:parameter/github/runner/pat"
         },
         {
           Action   = [
