@@ -1,4 +1,4 @@
-name: Test self-hosted runner
+name: Deploy self-hosted runner
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ jobs:
     environment: aws_dev
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
         - label: staging
