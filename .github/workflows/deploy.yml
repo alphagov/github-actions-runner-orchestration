@@ -42,15 +42,6 @@ jobs:
       with:
         path: main
     - run: |
-        ls -lah main
-
-        whoami
-
-        sudo yum update -y
-
-        ls -lah /usr/local/bin
-        export PATH="/usr/local/bin:$PATH"
-
         cd main/garo_terraform/
         tfenv install
         tfenv use
