@@ -6,6 +6,12 @@ variable "garo_lambda_arn" {
   ]
 }
 
+variable "role_for_instances_policy_arns" {
+  description = "Policy ARNs to attach to the instance role"
+  type        = list(string)
+  default     = [ ]
+}
+
 variable "region" {
   description = "AWS region"
   type        = string

@@ -3,6 +3,12 @@ resource "aws_iam_instance_profile" "profile_for_instances" {
   role = aws_iam_role.role_for_instances.name
 }
 
+resource "aws_iam_role_policy_attachment" "role-policy-attachment" {
+  role       = aws_iam_role.role_for_instances.name
+  count      = length(var.role_for_instances_policy_arns)
+  policy_arn = var.role_for_instances_policy_arns[count.index]
+}
+
 resource "aws_iam_role" "role_for_instances" {
   name = "GitHubRunnerInstanceRole"
 
@@ -14,7 +20,7 @@ resource "aws_iam_role" "role_for_instances" {
   )
 
   inline_policy {
-    name = "GitHubRunnerAssumeRolePolicy"
+    name = "GitHubRunnerInstanceRolePolicy"
 
     policy = jsonencode({
       Version = "2012-10-17"
