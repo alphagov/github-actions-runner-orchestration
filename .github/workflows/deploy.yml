@@ -44,6 +44,8 @@ jobs:
     - run: |
         ls -lah main
         
+        whoami
+        
         sudo yum update
         sudo yum install -y git
         
