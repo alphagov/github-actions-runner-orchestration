@@ -14,6 +14,8 @@ curl -H "X-aws-ec2-metadata-token: $EC2_TOKEN" \
 INSTANCE_ID=$(tr -cd '[:print:]' < instance_id.txt)
 export INSTANCE_ID=$INSTANCE_ID
 
+echo "Instance ID: $INSTANCE_ID"
+
 if [ -z "$INSTANCE_ID" ]
 then
   sudo shutdown -h now
@@ -47,6 +49,8 @@ export RUNNER_CFG_PAT=$RAWPAT
 
 if [ -z "$RUNNER_CFG_PAT" ]
 then
+  aws ec2 create-tags --region "$REGION" \
+    --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=bad-ssm-access"
   sudo shutdown -h now
 fi
 
