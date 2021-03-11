@@ -44,8 +44,8 @@ jobs:
     - run: |
         ls -lah main
         
-        yum update
-        yum install -y git
+        sudo yum update
+        sudo yum install -y git
         
         git clone https://github.com/tfutils/tfenv.git ~/.tfenv
         sudo rm /usr/local/bin/tfenv || echo "No tfenv installed"
