@@ -43,11 +43,11 @@ jobs:
         path: main
     - run: |
         source ~/.bash_profile
-        
+
         cd main/
         make test-full
         make build-full
-        
+
         cd garo_terraform/
         tfenv install
         tfenv use

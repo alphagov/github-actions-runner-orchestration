@@ -5,6 +5,7 @@ yum update -y
 rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
 yum install -y jq git amazon-linux-extras tar gzip util-linux dotnet-sdk-5.0 \
   unzip sudo yum-utils
+yum groupinstall -y "Development Tools"
 
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
 unzip -o acv2.zip

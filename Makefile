@@ -1,6 +1,7 @@
 .SHELL := /bin/bash
 .DEFAULT_GOAL := test
 .PHONY = clean
+.ONESHELL:
 
 build:
 	mkdir -p .build/
@@ -22,14 +23,12 @@ venv:
 	python3.8 -m venv env
 
 install-dev-dependencies:
-	( \
-		source ./env/bin/activate; \
-		python3.8 -m pip install -r requirements.txt \
-		  -r requirements-dev.txt --upgrade; \
-	)
+	source ./env/bin/activate;
+	python3.8 -m pip install -r requirements.txt -r requirements-dev.txt --upgrade
 
 test-full: venv install-dev-dependencies test
 
 test: venv
-	python3.8 -m doctest -f *.py
+	source ./env/bin/activate;
+	python3.8 -m doctest -f *.py;
 	shellcheck scripts/*.sh
