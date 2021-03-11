@@ -1,13 +1,20 @@
 #!/usr/bin/env bash
 echo "Starting user data"
 
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
-unzip acv2.zip
-sudo ./aws/install
-
 GRD="/opt/github/runner"
 mkdir -p "$GRD"
 cd "$GRD" || exit 1
+
+RAWGITHUB="https://raw.githubusercontent.com"
+GARO="alphagov/github-actions-runner-orchestration"
+
+GURL="$RAWGITHUB/$GARO/main/scripts/amazon_linux_ec2_ami_build.sh"
+curl -sLO "$GURL"
+chmod +x ./*.sh
+
+./amazon_linux_ec2_ami_build.sh
+
+echo "--------------"
 
 EC2_TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
@@ -25,6 +32,8 @@ then
   sudo shutdown -h now
 fi
 
+echo "--------------"
+
 echo -n '{region}' > region.txt
 echo -n 'github-runner-{type}-{uniqueid}' > name.txt
 echo -n '{repo}' > repo.txt
@@ -40,13 +49,8 @@ export NAME=$NAME
 aws ec2 create-tags --region "$REGION" \
   --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=installing"
 
-yum update -y
-yum install -y jq git amazon-linux-extras
+echo "------- Start the watcher -------"
 
-GARO="alphagov/github-actions-runner-orchestration"
-GURL="https://raw.githubusercontent.com/$GARO/main/scripts/instance_watcher.sh"
-curl -LO "$GURL"
-chmod +x ./*.sh
 ./instance_watcher.sh &
 
 echo "Getting PAT from SSM '/github/runner/pat'"
@@ -60,42 +64,6 @@ then
     --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=bad-ssm-access"
   sudo shutdown -h now
 fi
-
-
-echo "Adding github user"
-useradd github
-echo 'github ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers # pragma: allowlist secret
-
-
-echo "Installing common tools"
-
-amazon-linux-extras enable python3.8
-yum -y install python3.8
-
-git clone https://github.com/tfutils/tfenv.git "/opt/tfenv"
-rm /usr/local/bin/tfenv || echo "No tfenv installed"
-rm /usr/local/bin/terraform || echo "No terraform installed"
-ln -s /opt/tfenv/bin/tfenv /usr/local/bin > /dev/null
-ln -s /opt/tfenv/bin/terraform /usr/local/bin > /dev/null
-
-POETRY_SHA="cc195f1dd086d1c4d12a3acc8d6766981ba431ac" # pragma: allowlist secret
-runuser -l github -c "curl -sSL 'https://raw.githubusercontent.com/python-poetry/poetry/$POETRY_SHA/get-poetry.py' | python -"
-
-echo "Installing GitHub runner dependencies"
-rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
-yum update -y
-yum install -y tar gzip util-linux dotnet-sdk-5.0
-
-
-echo "Downloading latest runner"
-CURRENT_SHA="8109c962f09d9acc473d92c595ff43afceddb347" # pragma: allowlist secret
-CURRENT_URL="https://raw.githubusercontent.com/actions/runner/$CURRENT_SHA/scripts/"
-
-curl -LO "$CURRENT_URL/create-latest-svc.sh"
-curl -LO "$CURRENT_URL/delete.sh"
-curl -LO "$CURRENT_URL/remove-svc.sh"
-chmod +x ./*.sh
-chown github:github -R "$GRD"
 
 echo "-----------------"
 

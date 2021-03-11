@@ -10,7 +10,7 @@ from utils import random_string
 
 EC2_DEFAULT_TYPE: str = "spot"
 EC2_DEFAULT_INSTANCEROLEARN: str = "GitHubRunnerInstanceRole"
-EC2_DEFAULT_INSTANCETYPE: str = "t2.micro"
+EC2_DEFAULT_INSTANCETYPE: str = "t3a.micro"
 EC2_DEFAULT_REGION: str = "eu-west-2"
 EC2_DEFAULT_TIMEOUT: int = 3600
 
@@ -69,7 +69,7 @@ def getLatestAmzn2Image(region: str, credentials: dict) -> dict:
     response = client.describe_images(
         Owners=["amazon"],
         Filters=[
-            {"Name": "name", "Values": ["amzn2-ami-hvm-2.?.20??????.0-x86_64-gp2"]},
+            {"Name": "name", "Values": ["amzn2-ami-ecs-hvm-*x86_64-ebs"]},
             {"Name": "state", "Values": ["available"]},
         ],
     )
