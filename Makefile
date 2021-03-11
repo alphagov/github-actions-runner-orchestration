@@ -23,7 +23,7 @@ venv:
 
 install-dev-dependencies:
 	( \
-		source path/to/virtualenv/bin/activate; \
+		source ./env/bin/activate; \
 		python3.8 -m pip install -r requirements.txt \
 		  -r requirements-dev.txt --upgrade; \
 	)
