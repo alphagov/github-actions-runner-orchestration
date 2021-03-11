@@ -25,17 +25,18 @@ while true; do
     echo "Shutting down, expiry was: $EXPIRY"
     echo "------------------"
 
+    aws ec2 create-tags --region "$REGION" \
+      --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=removing"
+
     RAWPAT=$(aws ssm get-parameter --name "/github/runner/pat" --region "$REGION" \
       --with-decryption | jq -r ".[].Value" | tr -cd '[:print:]')
 
     export RUNNER_CFG_PAT=$RAWPAT
 
-    aws ec2 create-tags --region "$REGION" \
-      --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=removing"
+    sleep 120 && sudo shutdown -h now &
 
-    sleep 45 && sudo shutdown -h now &
     ./remove-svc.sh "$REPO"
-    sleep 2
+    sleep 10
     ./delete.sh "$REPO" "$NAME"
   fi
 done

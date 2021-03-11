@@ -64,7 +64,7 @@ fi
 
 echo "Adding github user"
 useradd github
-echo 'github ALL=(ALL:ALL) ALL' | sudo tee -a /etc/sudoers
+echo 'github ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers # pragma: allowlist secret
 
 
 echo "Installing common tools"
