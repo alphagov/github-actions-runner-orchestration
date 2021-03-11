@@ -68,7 +68,7 @@ fi
 echo "-----------------"
 
 timeout 60 ./create-latest-svc.sh "$REPO" '' "$NAME" \
-  'github' '{type},{uniqueid}{additional}'
+  'github' '{type},{uniqueid},{additional}'
 
 aws ec2 create-tags --region "$REGION" \
   --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=started"

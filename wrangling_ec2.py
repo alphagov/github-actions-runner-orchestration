@@ -46,7 +46,7 @@ def buildRunnerUserData2(
     additional = ""
     if label:
         if label.isalnum():
-            additional = f",{label}"
+            additional = label
 
     # TODO: generate a custom AMI with packages downloaded and use that instead
 

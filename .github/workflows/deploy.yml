@@ -19,7 +19,7 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'ondemand'
-          RUNNER_LABEL: 'from_prod'
+          RUNNER_LABEL: 'fromprod'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -37,7 +37,7 @@ jobs:
   deploy-to-staging:
     name: Deploy to staging
     needs: get-main-deploy-runner
-    runs-on: [self-hosted, linux, from_prod, ondemand]
+    runs-on: [self-hosted, linux, fromprod, ondemand]
     defaults:
       run:
         shell: bash
@@ -78,7 +78,7 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'spot'
-          RUNNER_LABEL: 'staging_test_runner'
+          RUNNER_LABEL: 'stagingtestrunner'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -96,7 +96,7 @@ jobs:
   use-staging-runner:
     name: Test the staging runner
     needs: get-test-staging-runner
-    runs-on: [self-hosted, linux, spot, staging_test_runner]
+    runs-on: [self-hosted, linux, spot, stagingtestrunner]
     defaults:
       run:
         shell: bash
@@ -114,7 +114,7 @@ jobs:
   deploy-to-prod:
     name: Deploy to production
     needs: [get-main-deploy-runner, use-staging-runner]
-    runs-on: [self-hosted, linux, from_prod, "${{ needs.get-main-deploy-runner.outputs.name }}"]
+    runs-on: [self-hosted, linux, ondemand]
     defaults:
       run:
         shell: bash
@@ -155,7 +155,7 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'spot'
-          RUNNER_LABEL: 'prod_test_runner'
+          RUNNER_LABEL: 'prodtestrunner'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -173,7 +173,7 @@ jobs:
   use-prod-runner:
     name: Test the production runner
     needs: get-test-prod-runner
-    runs-on: [self-hosted, linux, spot, prod_test_runner]
+    runs-on: [self-hosted, linux, spot, prodtestrunner]
     defaults:
       run:
         shell: bash
