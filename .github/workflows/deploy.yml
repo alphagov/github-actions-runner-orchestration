@@ -4,17 +4,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  get-runners:
-    environment: aws_dev
+  get-runner:
+    environment: personal_test
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-        - label: staging
-          type: spot
-        #- label: prod
-        #  type: ondemand
+    name: A job to test the runners
+    outputs:
+      name: ${{ steps.garoclient.outputs.name }}
+      runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
     steps:
       - name: Get Runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -22,8 +18,8 @@ jobs:
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-          RUNNER_TYPE: ${{ matrix.type }}
-          RUNNER_LABEL: ${{ matrix.label }}
+          RUNNER_TYPE: 'spot'
+          RUNNER_LABEL: 'staging'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -33,8 +29,13 @@ jobs:
           GARO_URL: 'https://prod.co-cdio-garo.digital'
           RUNNER_TIMEOUT: '3600'
 
+      - name: Output runner details
+        run: |
+          echo "Name ${{ steps.garoclient.outputs.name }}"
+          echo "State ${{ steps.garoclient.outputs.runnerstate }}"
+
   use-staging-runner:
-    runs-on: [self-hosted, linux, spot, staging]
+    runs-on: [self-hosted, linux, ${{ needs.get-runner.outputs.name }}]
     defaults:
       run:
         shell: bash
@@ -45,6 +46,8 @@ jobs:
       with:
         path: main
     - run: |
+        source ~/.bash_profile
+        
         cd main/
         make test-full
         make build-full

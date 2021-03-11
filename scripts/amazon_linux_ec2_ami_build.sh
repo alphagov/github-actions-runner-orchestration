@@ -50,7 +50,7 @@ curl -L "https://github.com/docker/compose/releases/download/$DCV/docker-compose
 sudo chmod +x "/usr/local/bin/docker-compose"
 
 echo "Installing ShellCheck"
-scversion="stable" # or "v0.4.7", or "latest"
+scversion="stable"
 curl -sLO "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz"
 tar -xvf ./*.tar.xz
 cp "shellcheck-${scversion}/shellcheck" /usr/bin/local
