@@ -149,13 +149,15 @@ async function run() {
         console.log("Runner starting:", result);
         postObj["name"] = result["name"];
 
+
+        var state_result = {};
         let i = 0;
-        while (i < 10) {
+        while (i < 12) {
           i++;
           console.log(`Starting wait: ${i}`)
           await wait(20000);
 
-          const state_result = await make_api_request(
+          state_result = await make_api_request(
             "state",
             garo_url,
             github_token,
@@ -171,6 +173,10 @@ async function run() {
             core.setOutput("runnerstate", result["runnerstate"]);
             break;
           }
+        }
+
+        if (state_result["runnerstate"] != "started") {
+          throw 'Runner not started in time';
         }
       }
     }
