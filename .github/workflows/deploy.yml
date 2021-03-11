@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  get-runner:
+  staging-deploy-runner:
     environment: personal_test
     runs-on: ubuntu-latest
     name: A job to test the runners
@@ -35,11 +35,11 @@ jobs:
           echo "State ${{ steps.garoclient.outputs.runnerstate }}"
 
   use-staging-runner:
-    runs-on: [self-hosted, linux, ${{ needs.get-runner.outputs.name }}]
+    runs-on: [self-hosted, linux, "${{ needs.get-runner.outputs.name }}"]
     defaults:
       run:
         shell: bash
-    needs: get-runners
+    needs: staging-deploy-runner
     steps:
     - name: Checkout
       uses: actions/checkout@v2
