@@ -49,7 +49,7 @@ jobs:
         sudo yum update -y
 
         ls -lah /usr/local/bin
-        ls -lah /opt
+        export PATH="/usr/local/bin:$PATH"
 
         cd main/garo_terraform/
         tfenv install
