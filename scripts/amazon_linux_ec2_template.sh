@@ -75,7 +75,8 @@ yum -y install python3.8
 git clone https://github.com/tfutils/tfenv.git "/opt/tfenv"
 rm /usr/local/bin/tfenv || echo "No tfenv installed"
 rm /usr/local/bin/terraform || echo "No terraform installed"
-ln -s "/opt/tfenv/bin/*" /usr/local/bin > /dev/null
+ln -s /opt/tfenv/bin/tfenv /usr/local/bin > /dev/null
+ln -s /opt/tfenv/bin/terraform /usr/local/bin > /dev/null
 
 POETRY_SHA="cc195f1dd086d1c4d12a3acc8d6766981ba431ac" # pragma: allowlist secret
 runuser -l github -c "curl -sSL 'https://raw.githubusercontent.com/python-poetry/poetry/$POETRY_SHA/get-poetry.py' | python -"
