@@ -1,3 +1,8 @@
+resource "random_integer" "garo_external_id" {
+  min = 10000000000000
+  max = 100000000000000
+}
+
 resource "aws_iam_role" "iam_for_ec2" {
   name = "GitHubRunnerAssumeRole"
 
@@ -16,9 +21,8 @@ resource "aws_iam_role" "iam_for_ec2" {
       Statement = [
         {
           Action   = [
-            "ec2:CreateTags",
             "ec2:DescribeSpotInstanceRequests",
-            "ec2:DescribeTags",
+            "ec2:RunInstances"
           ]
           Effect   = "Allow"
           Resource = "*"
@@ -31,16 +35,19 @@ resource "aws_iam_role" "iam_for_ec2" {
         {
           Action   = [
             "ec2:CreateTags",
-            "ec2:DescribeSpotInstanceRequests",
             "ec2:DescribeTags",
             "ec2:DescribeImages",
-            "ec2:RunInstances",
             "ec2:DescribeInstances",
-            "ec2:RequestSpotInstances",
-            "iam:PassRole",
+            "ec2:RequestSpotInstances"
+          ]
+          Effect   = "Allow"
+          Resource = "*"
+        },
+        {
+          Action   = [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
-            "logs:PutLogEvents",
+            "logs:PutLogEvents"
           ]
           Effect   = "Allow"
           Resource = "*"
@@ -49,24 +56,24 @@ resource "aws_iam_role" "iam_for_ec2" {
     })
   }
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
+  assume_role_policy = jsonencode(
     {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "AWS": "${aws_iam_role.iam_for_lambda.arn}"
-      },
-      "Condition": {
-        "StringEquals": {
-          "sts:ExternalId": "${var.garo_external_id}"
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Action": "sts:AssumeRole",
+          "Principal": {
+            "AWS": var.garo_lambda_arn
+          },
+          "Condition": {
+            "StringEquals": {
+              "sts:ExternalId": random_integer.garo_external_id.result
+            }
+          },
+          "Effect": "Allow",
+          "Sid": ""
         }
-      },
-      "Effect": "Allow",
-      "Sid": ""
+      ]
     }
-  ]
-}
-EOF
+  )
 }

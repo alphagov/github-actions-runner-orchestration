@@ -5,7 +5,7 @@ on:
 
 jobs:
   get-runners:
-    environment: personal_test
+    environment: aws_dev
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -32,7 +32,7 @@ jobs:
           RUNNER_SG: '${{ secrets.RUNNER_SG }}'
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
-          GARO_URL: '${{ secrets.GARO_URL }}'
+          GARO_URL: 'https://dev.co-cdio-garo.digital'
           RUNNER_TIMEOUT: '300'
 
   use-test1-runner:

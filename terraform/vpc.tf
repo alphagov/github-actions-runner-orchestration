@@ -1,5 +1,5 @@
 resource "aws_vpc" "main" {
-  cidr_block = "10.50.0.0/16"
+  cidr_block = var.vpc_subnet[terraform.workspace]
 
   enable_dns_support="false"
   enable_dns_hostnames="false"
@@ -7,7 +7,7 @@ resource "aws_vpc" "main" {
   tags = merge(
     var.common_tags,
     map(
-      "Name", "GitHubRunnerOrchestrator"
+      "Name", "GARO-${terraform.workspace}"
     )
   )
 }
@@ -35,42 +35,42 @@ resource "aws_route" "route" {
 
 resource "aws_subnet" "main-a" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.50.1.0/24"
+  cidr_block = var.vpc_subnet_a[terraform.workspace]
   availability_zone = "eu-west-2a"
   map_public_ip_on_launch = "false"
 
   tags = merge(
     var.common_tags,
     map(
-      "Name", "main-2a"
+      "Name", "GARO-2a-${terraform.workspace}"
     )
   )
 }
 
 resource "aws_subnet" "main-b" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.50.2.0/24"
+  cidr_block = var.vpc_subnet_b[terraform.workspace]
   availability_zone = "eu-west-2b"
   map_public_ip_on_launch = "false"
 
   tags = merge(
     var.common_tags,
     map(
-      "Name", "main-2b"
+      "Name", "GARO-2b-${terraform.workspace}"
     )
   )
 }
 
 resource "aws_subnet" "main-c" {
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.50.3.0/24"
+  cidr_block = var.vpc_subnet_c[terraform.workspace]
   availability_zone = "eu-west-2c"
   map_public_ip_on_launch = "false"
 
   tags = merge(
     var.common_tags,
     map(
-      "Name", "main-2c"
+      "Name", "GARO-2c-${terraform.workspace}"
     )
   )
 }

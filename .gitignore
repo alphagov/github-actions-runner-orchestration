@@ -1,9 +1,9 @@
 .build
 .target
-terraform/.terraform/
-terraform/.terraform.*
-terraform/terraform.tf*
-terraform/*.tfvars
+*/.terraform/
+*/.terraform.*
+*/terraform.tfs*
+*/*.tfvars
 
 client/node_modules/
 

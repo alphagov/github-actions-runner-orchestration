@@ -1,15 +1,15 @@
 resource "aws_iam_role" "iam_for_lambda" {
-  name = "GitHubRunnerOrchestratorRole"
+  name = "GARO-Role-${terraform.workspace}"
 
   tags = merge(
     var.common_tags,
     map(
-      "Name", "GitHubRunnerOrchestratorRole"
+      "Name", "GARO-Role-${terraform.workspace}"
     )
   )
 
   inline_policy {
-    name = "GitHubRunnerOrchestratorRolePolicy"
+    name = "GARO-RolePolicy-${terraform.workspace}"
 
     policy = jsonencode({
       Version = "2012-10-17"
@@ -54,7 +54,7 @@ EOF
 
 resource "aws_lambda_function" "orchestrator_lambda" {
   filename      = "../.build/lambda.zip"
-  function_name = "GitHubRunnerOrchestrator"
+  function_name = "GARO-${terraform.workspace}"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "lambda_handler.lambda_handler"
   source_code_hash = filebase64sha256("../.build/lambda.zip")
@@ -65,14 +65,15 @@ resource "aws_lambda_function" "orchestrator_lambda" {
 
   environment {
     variables = {
-      DEBUG = "0"
+      DEBUG = "0",
+      HOSTNAME = var.hostname[terraform.workspace]
     }
   }
 
   tags = merge(
     var.common_tags,
     map(
-      "Name", "GitHubRunnerOrchestrator"
+      "Name", "GARO-${terraform.workspace}"
     )
   )
 }

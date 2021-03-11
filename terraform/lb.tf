@@ -1,5 +1,5 @@
 resource "aws_alb" "main" {
-  name = "GitHubRunnerOrchestratorALB"
+  name = "GARO-ALB-${terraform.workspace}"
 
   load_balancer_type = "application"
   security_groups    = [aws_security_group.allow_tls.id]
@@ -12,20 +12,20 @@ resource "aws_alb" "main" {
   tags = merge(
     var.common_tags,
     map(
-      "Name", "GitHubRunnerOrchestratorALB"
+      "Name", "GARO-ALB-${terraform.workspace}"
     )
   )
 }
 
 
 resource "aws_alb_target_group" "main" {
-  name        = "GitHubRunnerOrchestratorALB-TG"
+  name        = "GARO-ALB-TG-${terraform.workspace}"
   target_type = "lambda"
 
   tags = merge(
     var.common_tags,
     map(
-      "Name", "GitHubRunnerOrchestratorALB-TG"
+      "Name", "GARO-ALB-TG-${terraform.workspace}"
     )
   )
 }
@@ -47,6 +47,29 @@ resource "aws_lb_target_group_attachment" "test" {
 }
 
 
+resource "aws_lb_listener_rule" "lambda" {
+  listener_arn = aws_lb_listener.main.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.main.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/start", "/status", "/state"]
+    }
+  }
+
+  condition {
+    host_header {
+      values = [var.hostname[terraform.workspace]]
+    }
+  }
+}
+
+
 resource "aws_lb_listener" "main" {
   load_balancer_arn = aws_alb.main.arn
   port              = "443"
@@ -55,7 +78,14 @@ resource "aws_lb_listener" "main" {
   certificate_arn   = var.tls_cert_arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_alb_target_group.main.arn
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      host        = "github.com"
+      path        = "/alphagov/github-actions-runner-orchestration"
+      status_code = "HTTP_302"
+    }
   }
 }
