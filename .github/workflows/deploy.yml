@@ -49,6 +49,8 @@ jobs:
         path: main
     - run: |
         source ~/.bash_profile
+        
+        ls -lah /usr/local/lib/py*
 
         cd main/
         make test-full
