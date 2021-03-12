@@ -60,6 +60,8 @@ outputs:
     description: 'Runner name'
   runnerstate:
     description: 'Runner state'
+  uniqueid:
+    description: 'Runner unique ID'
 runs:
   using: 'node12'
   main: 'dist/index.js'
