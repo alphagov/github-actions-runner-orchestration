@@ -24,14 +24,12 @@ venv:
 	chmod +x ./env/bin/activate;
 
 install-dev-dependencies:
-	source ./env/bin/activate;
-	python3.8 -m pip install -r requirements.txt -r requirements-dev.txt --upgrade
+	source ./env/bin/activate && python3.8 -m pip install -r requirements.txt -r requirements-dev.txt --upgrade
 
 test-python-full: venv install-dev-dependencies test-python
 
 test-python: venv
-	source ./env/bin/activate;
-	python3.8 -m doctest -f *.py;
+	source ./env/bin/activate && python3.8 -m doctest -f *.py;
 
 test-scripts:
 	shellcheck scripts/*.sh
