@@ -50,7 +50,9 @@ jobs:
     - run: |
         source ~/.bash_profile
         
-        ls -lah /usr/local/lib/py*
+        sudo ls -lah /usr/local/lib/py*
+        
+        sudo ls -lah /usr/local/lib/
 
         cd main/
         make test-full
