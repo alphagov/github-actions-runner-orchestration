@@ -158,7 +158,6 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'spot'
-          RUNNER_LABEL: 'prodtestrunner'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
