@@ -38,8 +38,12 @@ jobs:
   use-test1-runner:
     runs-on: [self-hosted, linux, spot, test1]
     needs: get-runners
+    defaults:
+      run:
+        shell: bash
     steps:
     - run: |
+        source ~/.bash_profile
         echo "Hello world from test1!"
         echo ""
         aws sts get-caller-identity
@@ -48,8 +52,12 @@ jobs:
   use-test2-runner:
     runs-on: [self-hosted, linux, spot, test2]
     needs: get-runners
+    defaults:
+      run:
+        shell: bash
     steps:
     - run: |
+        source ~/.bash_profile
         echo "Hello world from test2!"
         echo ""
         aws sts get-caller-identity
@@ -58,8 +66,12 @@ jobs:
   use-test3-runner:
     runs-on: [self-hosted, linux, ondemand, test3]
     needs: get-runners
+    defaults:
+      run:
+        shell: bash
     steps:
     - run: |
+        source ~/.bash_profile
         echo "Hello world from test3 (ondemand)!"
         echo ""
         aws sts get-caller-identity
