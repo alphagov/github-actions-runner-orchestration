@@ -49,6 +49,10 @@ jobs:
         path: main
     - run: |
         source ~/.bash_profile
+        
+        sudo ls -lah /usr/local/lib/py*
+        
+        sudo ls -lah /usr/local/lib/
 
         cd main/
         make test-full
@@ -62,6 +66,8 @@ jobs:
         terraform workspace list
         terraform workspace select staging
         terraform apply -auto-approve
+        
+        sleep 5
 
   get-test-staging-runner:
     name: Start a runner using the staging API
@@ -140,6 +146,8 @@ jobs:
         terraform workspace list
         terraform workspace select prod
         terraform apply -auto-approve
+        
+        sleep 5
 
   get-test-prod-runner:
     environment: aws_dev
