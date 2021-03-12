@@ -150,6 +150,7 @@ async function run() {
 
         core.setOutput("name", result["name"]);
         core.setOutput("runnerstate", result["runnerstate"]);
+        core.setOutput("uniqueid", result["uniqueid"]);
       }
 
       if (result["runnerstate"] == "starting" && wait_for_start) {
@@ -178,6 +179,7 @@ async function run() {
           if (state_result["runnerstate"] == "started") {
             core.setOutput("name", result["name"]);
             core.setOutput("runnerstate", result["runnerstate"]);
+            core.setOutput("uniqueid", result["uniqueid"]);
             break;
           }
         }

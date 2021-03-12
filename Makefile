@@ -1,7 +1,7 @@
-.SHELL := /bin/bash
-.DEFAULT_GOAL := test
-.PHONY = clean
-.ONESHELL:
+SHELL := /usr/bin/env bash
+DEFAULT_GOAL := test
+PHONY = clean
+ONESHELL:
 
 build:
 	mkdir -p .build/
@@ -20,17 +20,28 @@ clean:
 	rm -rf .target
 
 venv:
-	python3.8 -m venv env
+	python3.8 -m venv env;
+	chmod +x ./env/bin/activate;
 
 install-dev-dependencies:
 	source ./env/bin/activate;
 	python3.8 -m pip install -r requirements.txt -r requirements-dev.txt --upgrade
 
-test-full: venv install-dev-dependencies test
+test-python-full: venv install-dev-dependencies test-python
 
-test: venv
+test-python: venv
 	source ./env/bin/activate;
 	python3.8 -m doctest -f *.py;
 
 test-scripts:
 	shellcheck scripts/*.sh
+
+test-client:
+	cd ./client && npm run test
+
+test-client-full:
+	cd ./client && npm install && npm run test
+
+test: test-python test-scripts test-client
+
+test-full: test-python-full test-scripts test-client-full

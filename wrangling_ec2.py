@@ -174,6 +174,9 @@ def _currentRunnerExists(filters: list, region: str, credentials: dict) -> dict:
                         if tag["Key"] == "RunnerState":
                             res.update({"runnerstate": tag["Value"]})
 
+                        if tag["Key"] == "UniqueID":
+                            res.update({"uniqueid": tag["Value"]})
+
     return res
 
 
@@ -262,6 +265,7 @@ def startRunnerFromBody(body_items: dict, credentials: dict) -> bool:
         "name": name,
         "additional_label": additional_label,
         "type": type,
+        "uniqueid": uniqueid,
     }
 
 
