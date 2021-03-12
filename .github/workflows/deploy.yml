@@ -11,6 +11,7 @@ jobs:
     outputs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
+      uniqueid: ${{ steps.garoclient.outputs.uniqueid }}
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -19,7 +20,6 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'ondemand'
-          RUNNER_LABEL: 'fromprod'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -33,11 +33,12 @@ jobs:
         run: |
           echo "Name: ${{ steps.garoclient.outputs.name }}"
           echo "State: ${{ steps.garoclient.outputs.runnerstate }}"
+          echo "UniqueID: ${{ steps.garoclient.outputs.uniqueid }}"
 
   deploy-to-staging:
     name: Deploy to staging
     needs: get-main-deploy-runner
-    runs-on: [self-hosted, linux, fromprod, ondemand]
+    runs-on: [self-hosted, "${{ needs.get-main-deploy-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
@@ -70,6 +71,7 @@ jobs:
     outputs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
+      uniqueid: ${{ steps.garoclient.outputs.uniqueid }}
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -78,7 +80,6 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'spot'
-          RUNNER_LABEL: 'stagingtestrunner'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -92,11 +93,12 @@ jobs:
         run: |
           echo "Name: ${{ steps.garoclient.outputs.name }}"
           echo "State: ${{ steps.garoclient.outputs.runnerstate }}"
+          echo "UniqueID: ${{ steps.garoclient.outputs.uniqueid }}"
 
   use-staging-runner:
     name: Test the staging runner
     needs: get-test-staging-runner
-    runs-on: [self-hosted, linux, spot, stagingtestrunner]
+    runs-on: [self-hosted, "${{ needs.get-test-staging-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
@@ -114,7 +116,7 @@ jobs:
   deploy-to-prod:
     name: Deploy to production
     needs: [get-main-deploy-runner, use-staging-runner]
-    runs-on: [self-hosted, linux, ondemand]
+    runs-on: [self-hosted, "${{ needs.get-main-deploy-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
@@ -147,6 +149,7 @@ jobs:
     outputs:
       name: ${{ steps.garoclient.outputs.name }}
       runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
+      uniqueid: ${{ steps.garoclient.outputs.uniqueid }}
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -155,7 +158,6 @@ jobs:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
           RUNNER_TYPE: 'spot'
-          RUNNER_LABEL: 'prodtestrunner'
           REPO: '${{ github.repository }}'
           GITHUB_COMMIT: '${{ github.sha }}'
           RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
@@ -169,11 +171,12 @@ jobs:
         run: |
           echo "Name: ${{ steps.garoclient.outputs.name }}"
           echo "State: ${{ steps.garoclient.outputs.runnerstate }}"
+          echo "UniqueID: ${{ steps.garoclient.outputs.uniqueid }}"
 
   use-prod-runner:
     name: Test the production runner
     needs: get-test-prod-runner
-    runs-on: [self-hosted, linux, spot, prodtestrunner]
+    runs-on: [self-hosted, "${{ needs.get-test-prod-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
