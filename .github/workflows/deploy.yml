@@ -50,6 +50,8 @@ jobs:
     - run: |
         source ~/.bash_profile
 
+        nvm install 12.21.0
+
         cd main/
         make test-full
         make build-full
@@ -62,7 +64,7 @@ jobs:
         terraform workspace list
         terraform workspace select staging
         terraform apply -auto-approve
-        
+
         sleep 5
 
   get-test-staging-runner:
@@ -130,6 +132,8 @@ jobs:
     - run: |
         source ~/.bash_profile
 
+        nvm install 12.21.0
+
         cd main/
         make test-full
         make build-full
@@ -142,7 +146,7 @@ jobs:
         terraform workspace list
         terraform workspace select prod
         terraform apply -auto-approve
-        
+
         sleep 5
 
   get-test-prod-runner:
