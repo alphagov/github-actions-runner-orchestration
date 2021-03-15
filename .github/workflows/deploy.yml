@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
-        id: garoclient
+        id: garoclient-main
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
@@ -28,17 +28,18 @@ jobs:
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: 'https://prod.co-cdio-garo.digital'
           RUNNER_TIMEOUT: '3600'
+          RUNNER_LABEL: 'prod'
 
       - name: Output runner details
         run: |
-          echo "Name: ${{ steps.garoclient.outputs.name }}"
-          echo "State: ${{ steps.garoclient.outputs.runnerstate }}"
-          echo "UniqueID: ${{ steps.garoclient.outputs.uniqueid }}"
+          echo "Name: ${{ steps.garoclient-main.outputs.name }}"
+          echo "State: ${{ steps.garoclient-main.outputs.runnerstate }}"
+          echo "UniqueID: ${{ steps.garoclient-main.outputs.uniqueid }}"
 
   deploy-to-staging:
     name: Deploy to staging
     needs: get-main-deploy-runner
-    runs-on: [self-hosted, "${{ needs.get-main-deploy-runner.outputs.uniqueid }}"]
+    runs-on: [self-hosted, prod, ${{ needs.get-main-deploy-runner.outputs.uniqueid }}]
     defaults:
       run:
         shell: bash
@@ -79,7 +80,7 @@ jobs:
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
-        id: garoclient
+        id: garoclient-staging-test
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
@@ -92,17 +93,18 @@ jobs:
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: 'https://staging.co-cdio-garo.digital'
           RUNNER_TIMEOUT: '900'
+          RUNNER_LABEL: 'stagingtest'
 
       - name: Output runner details
         run: |
-          echo "Name: ${{ steps.garoclient.outputs.name }}"
-          echo "State: ${{ steps.garoclient.outputs.runnerstate }}"
-          echo "UniqueID: ${{ steps.garoclient.outputs.uniqueid }}"
+          echo "Name: ${{ steps.garoclient-staging-test.outputs.name }}"
+          echo "State: ${{ steps.garoclient-staging-test.outputs.runnerstate }}"
+          echo "UniqueID: ${{ steps.garoclient-staging-test.outputs.uniqueid }}"
 
   use-staging-runner:
     name: Test the staging runner
     needs: get-test-staging-runner
-    runs-on: [self-hosted, "${{ needs.get-test-staging-runner.outputs.uniqueid }}"]
+    runs-on: [self-hosted, stagingtest, ${{ needs.get-test-staging-runner.outputs.uniqueid }}]
     defaults:
       run:
         shell: bash
@@ -120,7 +122,7 @@ jobs:
   deploy-to-prod:
     name: Deploy to production
     needs: [get-main-deploy-runner, use-staging-runner]
-    runs-on: [self-hosted, "${{ needs.get-main-deploy-runner.outputs.uniqueid }}"]
+    runs-on: [self-hosted, prod, ${{ needs.get-main-deploy-runner.outputs.uniqueid }}]
     defaults:
       run:
         shell: bash
@@ -161,7 +163,7 @@ jobs:
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
-        id: garoclient
+        id: garoclient-prod-test
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
@@ -174,17 +176,18 @@ jobs:
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: 'https://prod.co-cdio-garo.digital'
           RUNNER_TIMEOUT: '900'
+          RUNNER_LABEL: 'prodtest'
 
       - name: Output runner details
         run: |
-          echo "Name: ${{ steps.garoclient.outputs.name }}"
-          echo "State: ${{ steps.garoclient.outputs.runnerstate }}"
-          echo "UniqueID: ${{ steps.garoclient.outputs.uniqueid }}"
+          echo "Name: ${{ steps.garoclient-prod-test.outputs.name }}"
+          echo "State: ${{ steps.garoclient-prod-test.outputs.runnerstate }}"
+          echo "UniqueID: ${{ steps.garoclient-prod-test.outputs.uniqueid }}"
 
   use-prod-runner:
     name: Test the production runner
     needs: get-test-prod-runner
-    runs-on: [self-hosted, "${{ needs.get-test-prod-runner.outputs.uniqueid }}"]
+    runs-on: [self-hosted, prodtest, ${{ needs.get-test-prod-runner.outputs.uniqueid }}]
     defaults:
       run:
         shell: bash
