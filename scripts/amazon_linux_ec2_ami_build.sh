@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 echo "Starting user data"
 
-yum update -y
+yum upgrade -y
 rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
+yum install -y deltarpm
+yum update -y
 yum install -y jq git amazon-linux-extras tar gzip util-linux dotnet-sdk-5.0 \
-  unzip sudo yum-utils shellcheck xz zip
+  unzip sudo yum-utils xz zip openssl-devel libyaml-devel libffi-devel \
+  readline-devel gdbm-devel ncurses-devel ruby-devel which procps nano
 yum groupinstall -y "Development Tools"
 
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
 unzip -o acv2.zip
+rm acv2.zip
 sudo ./aws/install
 
 GRD="/opt/github/runner"
@@ -22,7 +26,16 @@ echo "Adding github user"
 useradd github
 echo 'github ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers # pragma: allowlist secret
 
-sudo usermod -aG docker github
+echo "Adding github user to docker group"
+echo " * Docker is present in ECS AMI"
+usermod -aG docker github
+
+echo "Install rvm"
+# Import key
+runuser -l github -c "curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - \
+  && curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -"
+# Install RVM
+runuser -l github -c 'curl -sSL https://get.rvm.io | bash -s stable --ruby --with-default-gems="rails"'
 
 echo "Installing nvm"
 NVMV="0.37.2"
@@ -84,10 +97,15 @@ curl -sLO "$CURRENT_URL/remove-svc.sh"
 chmod +x ./*.sh
 chown github:github -R "$GRD"
 
-echo "Adding to PATH"
+echo "Adding environment variables"
 # shellcheck disable=SC2016
-echo 'export PATH="/home/github/.cargo/bin:/usr/local/go/bin:/usr/local/bin:/opt/github/runner:$PATH"' \
-  >> /home/github/.bash_profile
+(
+  echo 'PATH="/home/github/.cargo/bin:/usr/local/go/bin:/usr/local/bin:/opt/github/runner:$PATH"'
+  echo 'GOPATH=$HOME/go && export GOPATH'
+  echo 'GO111MODULE="auto" && export GO111MODULE'
+  echo 'export PATH'
+) >> /home/github/.bashrc
+
 chown github:github -R /home/github
 
 echo "Cleaning up"
