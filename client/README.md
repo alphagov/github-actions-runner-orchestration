@@ -2,6 +2,25 @@
 
 This action spins up and ephemerial runner in your own AWS environment.
 
+## Example usage
+
+``` yml
+steps:
+  - name: Get runner
+    uses: alphagov/github-actions-runner-orchestration/client@main
+    id: garoclient
+    with:
+      ACTION: 'start'
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+      RUNNER_TYPE: 'ondemand'
+      REPO: '${{ github.repository }}'
+      GITHUB_COMMIT: '${{ github.sha }}'
+      RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
+      RUNNER_SG: '${{ secrets.RUNNER_SG }}'
+      RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
+      RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
+```
+
 ## Inputs
 
 #### -- Required --
@@ -102,22 +121,3 @@ The runner's state.
 ### `uniqueid`
 
 The runner's unique ID that's randomly generated when created.
-
-## Example usage
-
-``` yml
-steps:
-  - name: Get runner
-    uses: alphagov/github-actions-runner-orchestration/client@main
-    id: garoclient
-    with:
-      ACTION: 'start'
-      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      RUNNER_TYPE: 'ondemand'
-      REPO: '${{ github.repository }}'
-      GITHUB_COMMIT: '${{ github.sha }}'
-      RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
-      RUNNER_SG: '${{ secrets.RUNNER_SG }}'
-      RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
-      RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
-```
