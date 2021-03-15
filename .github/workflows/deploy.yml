@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Get the main deploy runner using prod API
     outputs:
-      name: ${{ steps.garoclient.outputs.name }}
-      runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
-      uniqueid: ${{ steps.garoclient.outputs.uniqueid }}
+      name: ${{ steps.garoclient-main.outputs.name }}
+      runnerstate: ${{ steps.garoclient-main.outputs.runnerstate }}
+      uniqueid: ${{ steps.garoclient-main.outputs.uniqueid }}
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -74,9 +74,9 @@ jobs:
     environment: aws_dev
     runs-on: ubuntu-latest
     outputs:
-      name: ${{ steps.garoclient.outputs.name }}
-      runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
-      uniqueid: ${{ steps.garoclient.outputs.uniqueid }}
+      name: ${{ steps.garoclient-staging-test.outputs.name }}
+      runnerstate: ${{ steps.garoclient-staging-test.outputs.runnerstate }}
+      uniqueid: ${{ steps.garoclient-staging-test.outputs.uniqueid }}
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
@@ -157,9 +157,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Start a runner using the prod API
     outputs:
-      name: ${{ steps.garoclient.outputs.name }}
-      runnerstate: ${{ steps.garoclient.outputs.runnerstate }}
-      uniqueid: ${{ steps.garoclient.outputs.uniqueid }}
+      name: ${{ steps.garoclient-prod-test.outputs.name }}
+      runnerstate: ${{ steps.garoclient-prod-test.outputs.runnerstate }}
+      uniqueid: ${{ steps.garoclient-prod-test.outputs.uniqueid }}
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
