@@ -39,7 +39,7 @@ jobs:
   deploy-to-staging:
     name: Deploy to staging
     needs: get-main-deploy-runner
-    runs-on: [self-hosted, prod, ${{ needs.get-main-deploy-runner.outputs.uniqueid }}]
+    runs-on: [self-hosted, prod, "${{ needs.get-main-deploy-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
@@ -104,7 +104,7 @@ jobs:
   use-staging-runner:
     name: Test the staging runner
     needs: get-test-staging-runner
-    runs-on: [self-hosted, stagingtest, ${{ needs.get-test-staging-runner.outputs.uniqueid }}]
+    runs-on: [self-hosted, stagingtest, "${{ needs.get-test-staging-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
@@ -122,7 +122,7 @@ jobs:
   deploy-to-prod:
     name: Deploy to production
     needs: [get-main-deploy-runner, use-staging-runner]
-    runs-on: [self-hosted, prod, ${{ needs.get-main-deploy-runner.outputs.uniqueid }}]
+    runs-on: [self-hosted, prod, "${{ needs.get-main-deploy-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
@@ -187,7 +187,7 @@ jobs:
   use-prod-runner:
     name: Test the production runner
     needs: get-test-prod-runner
-    runs-on: [self-hosted, prodtest, ${{ needs.get-test-prod-runner.outputs.uniqueid }}]
+    runs-on: [self-hosted, prodtest, "${{ needs.get-test-prod-runner.outputs.uniqueid }}"]
     defaults:
       run:
         shell: bash
