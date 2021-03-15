@@ -91,7 +91,7 @@ jobs:
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: 'https://staging.co-cdio-garo.digital'
-          RUNNER_TIMEOUT: '300'
+          RUNNER_TIMEOUT: '900'
 
       - name: Output runner details
         run: |
@@ -173,7 +173,7 @@ jobs:
           RUNNER_ACID: '${{ secrets.RUNNER_ACID }}'
           RUNNER_EXID: '${{ secrets.RUNNER_EXID }}'
           GARO_URL: 'https://prod.co-cdio-garo.digital'
-          RUNNER_TIMEOUT: '300'
+          RUNNER_TIMEOUT: '900'
 
       - name: Output runner details
         run: |
