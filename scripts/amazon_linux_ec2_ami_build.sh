@@ -7,7 +7,8 @@ yum install -y deltarpm
 yum update -y
 yum install -y jq git amazon-linux-extras tar gzip util-linux dotnet-sdk-5.0 \
   unzip sudo yum-utils xz zip openssl-devel libyaml-devel libffi-devel \
-  readline-devel gdbm-devel ncurses-devel ruby-devel which procps nano
+  readline-devel gdbm-devel ncurses-devel ruby-devel which procps nano \
+  systemd
 yum groupinstall -y "Development Tools"
 
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
