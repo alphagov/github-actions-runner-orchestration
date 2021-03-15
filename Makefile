@@ -3,7 +3,7 @@ DEFAULT_GOAL := test
 PHONY = clean
 ONESHELL:
 
-build:
+build-lambda:
 	mkdir -p .build/
 	mkdir -p .target/scripts/
 	cp ./*.py .target/
@@ -13,7 +13,7 @@ build:
 build-dependencies:
 	python3.8 -m pip install -r requirements.txt -t .target/ --upgrade
 
-build-full: build-dependencies build
+build-full: build-dependencies build build-client
 
 clean:
 	rm -rf .build
@@ -34,6 +34,9 @@ test-python: venv
 test-scripts:
 	shellcheck scripts/*.sh
 
+build-client:
+	cd ./client && npm run all
+
 test-client:
 	cd ./client && npm run test
 
@@ -43,3 +46,5 @@ test-client-full:
 test: test-python test-scripts test-client
 
 test-full: test-python-full test-scripts test-client-full
+
+build: build-lambda build-client
