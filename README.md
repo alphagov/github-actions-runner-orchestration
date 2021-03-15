@@ -8,9 +8,13 @@ This is an experimental API for running ephemeral GitHub Action runners in EC2 i
 1. starts with a POST to the `/start` endpoint
 2. API validates the request
 3. API tries to assume the role in the specified account with an [external ID]
-4. API starts either a `spot` or `ondemand` instance
-5. Instance configures itself using a [PAT](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) retrieved from SSM Parameter Store
-6. returns started status
+4. API checks if a matching instance (by labels and instance type) already exists
+   1. if yes, returns the unique ID
+   1. if not:
+      1. API starts either a `spot` or `ondemand` instance
+      1. instance configures itself using a [PAT](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token) retrieved from SSM Parameter Store
+      1. waits for instance to start
+5. returns started status
 
 ## Requirements for [client] (or direct API use)
 - subnets with external internet access (recommend via a NAT gateway)
