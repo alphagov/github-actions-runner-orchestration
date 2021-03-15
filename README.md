@@ -1,4 +1,6 @@
-# github-actions-runner-orchestration ![Experimental](https://img.shields.io/badge/Status-Experimental-orange.svg)
+# github-actions-runner-orchestration
+![Experimental](https://img.shields.io/badge/Status-Experimental-orange.svg) [![Test and deploy to staging and production](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/deploy.yml)
+
 GARO - serverless (AWS Lambda) GitHub Actions self-hosted EC2 runner orchestration tool
 
 ## What is it?
