@@ -60,6 +60,12 @@ while [ $i -lt 20 ]; do
   i=$(( i + 1 ))
 done
 
+function terminateEC2 {
+  aws ec2 terminate-instances \
+    --region "$1" \
+    --instance-ids "$2"
+}
+
 sleep 30
 
 if [ "$READY" != "true" ]; then
@@ -72,10 +78,11 @@ echo "EC2 instance ready, taking an image..."
 AMI_ID=$(aws ec2 create-image \
   --region "$REGION" \
   --instance-id "$INSTANCE_ID" \
-  --name custom-ami | jq .r 'ImageId')
+  --name "custom-ami-$(date +%s)" | jq -r '.ImageId')
 
 if [ -z "$AMI_ID" ] || [ "$AMI_ID" == "null" ]; then
   echo "Failed to start creating the image"
+  terminateEC2 "$REGION" "$INSTANCE_ID"
   exit 1
 fi
 
@@ -102,9 +109,7 @@ done
 
 if [ "$AMI_READY" != "true" ]; then
   echo "AMI wasn't ready in time"
-
-  # TODO: terminate EC2
-
+  terminateEC2 "$REGION" "$INSTANCE_ID"
   exit 1
 fi
 
@@ -113,12 +118,12 @@ sleep 5
 echo "Making AMI public"
 aws ec2 modify-image-attribute \
   --image-id "$AMI_ID" \
+  --region "$REGION" \
   --launch-permission "Add=[{Group=all}]"
 
 sleep 1
 
 echo "Terminating original EC2"
-aws ec2 terminate-instances \
-  --instance-ids "$INSTANCE_ID"
+terminateEC2 "$REGION" "$INSTANCE_ID"
 
 echo "-- FINISHED! --"

@@ -79,7 +79,7 @@ def getLatestImage(region: str, credentials: dict, amazon_ecs_ami: bool = True) 
         name = "amzn2-ami-ecs-hvm-*x86_64-ebs"
     else:
         owner = "982247885130"
-        name = "custom-ami"
+        name = "custom-ami-*"
 
     response = client.describe_images(
         Owners=[owner],
