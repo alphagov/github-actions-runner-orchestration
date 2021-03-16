@@ -5,7 +5,7 @@ echo "Starting: $(date +%s)"
 REGION="eu-west-2"
 
 echo "Getting lastest Amazon Linux 2 ECS AMI"
-IMAGEID=$(python -c "from wrangling_ec2 import getLatestAmzn2Image; \
+IMAGEID=$(python3 -c "from wrangling_ec2 import getLatestAmzn2Image; \
   import json; \
   ecs_ami = getLatestAmzn2Image('$REGION', {}); \
   print(json.dumps(ecs_ami, default=str))" | jq -r '.ImageId')
