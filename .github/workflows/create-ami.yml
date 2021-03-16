@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get runner
         uses: alphagov/github-actions-runner-orchestration/client@main
-        id: garoclient-main
+        id: garoclient-spot
         with:
           ACTION: 'start'
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'

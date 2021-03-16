@@ -156,7 +156,7 @@ async function run() {
         while (i < 20) {
           i++;
           console.log(`Starting wait: ${i}`)
-          await wait(30000);
+          await wait(15000);
 
           state_result = await make_api_request(
             "state",
