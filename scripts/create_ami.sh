@@ -2,6 +2,16 @@
 
 echo "Starting: $(date +%s)"
 
+if [ -z "$SUBNETID" ]; then
+  echo "SUBNETID not set"
+  exit 1
+fi
+
+if [ -z "$SECURITYG" ]; then
+  echo "SECURITYG not set"
+  exit 1
+fi
+
 REGION="eu-west-2"
 
 echo "Getting lastest Amazon Linux 2 ECS AMI"
@@ -20,7 +30,7 @@ echo "Creating instance"
 CREATE_EC2=$(aws ec2 run-instances \
   --region "$REGION" \
   --image-id "$IMAGEID" \
-  --instance-type t3a.medium \
+  --instance-type "t3a.medium" \
   --count 1 \
   --no-associate-public-ip-address \
   --subnet-id "$SUBNETID" \
@@ -31,7 +41,7 @@ CREATE_EC2=$(aws ec2 run-instances \
 
 INSTANCE_ID=$(echo "$CREATE_EC2" | jq -r '.Instances[0].InstanceId')
 
-echo "Created instance: $(date +%s)"
+echo "Created instance"
 sleep 10
 
 READY="false"
