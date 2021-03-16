@@ -49,6 +49,7 @@ jobs:
       with:
         path: main
     - run: |
+        source ~/.bash_profile && source ~/.bashrc
         cd main/
         export SUBNETID="${{ secrets.RUNNER_SUBNET }}" \
           && export SECURITYG="${{ secrets.RUNNER_SG }}" \
