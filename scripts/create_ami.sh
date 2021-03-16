@@ -5,8 +5,8 @@ echo "Starting: $(date +%s)"
 REGION="eu-west-2"
 
 echo "Getting lastest Amazon Linux 2 ECS AMI"
-python3 -m pip install boto3
-IMAGEID=$(python3 -c "from wrangling_ec2 import getLatestAmzn2Image; \
+python3.8 -m pip install --user boto3
+IMAGEID=$(python3.8 -c "from wrangling_ec2 import getLatestAmzn2Image; \
   import json; \
   ecs_ami = getLatestAmzn2Image('$REGION', {}); \
   print(json.dumps(ecs_ami, default=str))" | jq -r '.ImageId')
