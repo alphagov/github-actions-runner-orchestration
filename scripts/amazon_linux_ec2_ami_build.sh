@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 echo "Starting user data"
 
+# WARNING: everything in here will become available in the public AMI!
+
 yum upgrade -y
 rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-prod.rpm
 yum install -y deltarpm
@@ -112,5 +114,7 @@ chown github:github -R /home/github
 echo "Cleaning up"
 sudo yum clean all
 sudo rm -rf /var/cache/yum
+
+echo "ready" > /home/github/ami_state.txt
 
 echo "-------- Finished common ---------"

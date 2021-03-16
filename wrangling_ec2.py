@@ -63,13 +63,28 @@ def buildRunnerUserData2(
 
 
 def getLatestAmzn2Image(region: str, credentials: dict) -> dict:
+    return getLatestImage(region, credentials)
+
+
+def getLatestCustomImage(region: str, credentials: dict) -> dict:
+    return getLatestImage(region, credentials, amazon_ecs_ami=False)
+
+
+def getLatestImage(region: str, credentials: dict, amazon_ecs_ami: bool = True) -> dict:
 
     client = getEc2Client(credentials, region)
 
+    if amazon_ecs_ami:
+        owner = "amazon"
+        name = "amzn2-ami-ecs-hvm-*x86_64-ebs"
+    else:
+        owner = "982247885130"
+        name = "custom-ami"
+
     response = client.describe_images(
-        Owners=["amazon"],
+        Owners=[owner],
         Filters=[
-            {"Name": "name", "Values": ["amzn2-ami-ecs-hvm-*x86_64-ebs"]},
+            {"Name": "name", "Values": [name]},
             {"Name": "state", "Values": ["available"]},
         ],
     )
@@ -90,7 +105,7 @@ def getLatestAmzn2Image(region: str, credentials: dict) -> dict:
 
         return res_image
 
-    raise Exception("Error getting latest Amazon Linux 2")
+    raise Exception("Error getting latest image")
 
 
 def updateTimeoutTag(
@@ -104,7 +119,7 @@ def updateTimeoutTag(
     client = getEc2Client(credentials, region)
 
     response = client.create_tags(
-        Resources=[instanceid], Tags=[{"Key": "GitHubRunnerTimeout", "Value": grt}],
+        Resources=[instanceid], Tags=[{"Key": "GitHubRunnerTimeout", "Value": grt}]
     )
 
     if "ResponseMetadata" in response:
@@ -127,11 +142,9 @@ def currentRunnerExistsByBody(body_qs: dict, credentials: dict) -> str:
 
 
 def currentRunnerExistsByType(
-    type: str, additional_label: str, region: str, credentials: dict,
+    type: str, additional_label: str, region: str, credentials: dict
 ) -> str:
-    filters = [
-        {"Name": "tag:Name", "Values": [f"github-runner-{type}-*"]},
-    ]
+    filters = [{"Name": "tag:Name", "Values": [f"github-runner-{type}-*"]}]
 
     if additional_label:
         filters.append({"Name": "tag:Label", "Values": [additional_label]})
@@ -234,13 +247,13 @@ def startRunnerFromBody(body_items: dict, credentials: dict) -> bool:
     if "imageid" in body_items:
         imageid = body_items["imageid"]
     else:
-        imageRes = getLatestAmzn2Image(region, credentials)
+        imageRes = getLatestCustomImage(region, credentials)
         imageid = imageRes["ImageId"]
 
     uniqueid = random_string(10)
 
     userDataB64 = buildRunnerUserData2(
-        repo=repo, type=type, uniqueid=uniqueid, label=additional_label,
+        repo=repo, type=type, uniqueid=uniqueid, label=additional_label
     )
 
     name = f"github-runner-{type}-{uniqueid}"
@@ -406,7 +419,7 @@ def _startSpotRunner(
             "InstanceType": instanceType,
             "Monitoring": {"Enabled": True},
             "NetworkInterfaces": [
-                {"Groups": [sg], "SubnetId": subnet, "DeviceIndex": 0,}
+                {"Groups": [sg], "SubnetId": subnet, "DeviceIndex": 0}
             ],
         },
         TagSpecifications=[

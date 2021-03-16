@@ -43,11 +43,12 @@ while true; do
 
     TOKEN_ENDPOINT="https://api.github.com/repos/${RUNNER_REPO}/actions/runners/remove-token"
 
-    export REMOVE_TOKEN=$(curl -s -X POST $TOKEN_ENDPOINT \
+    REMOVE_TOKEN=$(curl -s -X POST "$TOKEN_ENDPOINT" \
       -H "accept: application/vnd.github.everest-preview+json" \
       -H "authorization: token ${RUNNER_CFG_PAT}" | jq -r '.token')
+    export REMOVE_TOKEN=$REMOVE_TOKEN
 
-    if [ -z "$REMOVE_TOKEN" ]; then fatal "Failed to get a token"; fi
+    if [ -z "$REMOVE_TOKEN" ]; then echo "Failed to get a token" && exit 1; fi
 
     # GitHub uses node to run the runner, kill it
     sudo killall node
@@ -55,7 +56,7 @@ while true; do
 
     echo
     echo "Removing the runner..."
-    pushd ./runner
-    sudo ./config.sh remove --token $REMOVE_TOKEN
+    pushd ./runner || exit 1
+    sudo ./config.sh remove --token "$REMOVE_TOKEN"
   fi
 done

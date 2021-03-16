@@ -2,17 +2,11 @@
 echo "Starting user data"
 
 GRD="/opt/github/runner"
-mkdir -p "$GRD"
 cd "$GRD" || exit 1
 
-RAWGITHUB="https://raw.githubusercontent.com"
-GARO="alphagov/github-actions-runner-orchestration"
-
-GURL="$RAWGITHUB/$GARO/main/scripts/amazon_linux_ec2_ami_build.sh"
-curl -sLO "$GURL"
-chmod +x ./*.sh
-
-./amazon_linux_ec2_ami_build.sh
+if [ "$(cat /home/github/ami_state.txt)" != "ready" ]; then
+  sudo shutdown -h now || exit 1
+fi
 
 echo "--------------"
 
