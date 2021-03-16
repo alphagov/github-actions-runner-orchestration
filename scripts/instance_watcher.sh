@@ -25,6 +25,9 @@ while true; do
     echo "Shutting down, expiry was: $EXPIRY"
     echo "------------------"
 
+    # schedule a shutdown before doing anything else:
+    sleep 60 && sudo shutdown -h now &
+
     aws ec2 create-tags --region "$RUNNER_REGION" \
       --resources "$INSTANCE_ID" --tags "Key=RunnerState,Value=removing"
 
@@ -32,12 +35,27 @@ while true; do
       --region "$RUNNER_REGION" --with-decryption \
       | jq -r ".[].Value" | tr -cd '[:print:]')
 
+    RUNNER_CFG_PAT=$RAWPAT
     export RUNNER_CFG_PAT=$RAWPAT
 
-    sleep 120 && sudo shutdown -h now &
+    # the following is adapted from:
+    # https://github.com/actions/runner/blob/main/scripts/remove-svc.sh
 
-    ./remove-svc.sh "$RUNNER_REPO" "$RUNNER_NAME"
-    sleep 10
-    ./delete.sh "$RUNNER_REPO" "$RUNNER_NAME"
+    TOKEN_ENDPOINT="https://api.github.com/repos/${RUNNER_REPO}/actions/runners/remove-token"
+
+    export REMOVE_TOKEN=$(curl -s -X POST $TOKEN_ENDPOINT \
+      -H "accept: application/vnd.github.everest-preview+json" \
+      -H "authorization: token ${RUNNER_CFG_PAT}" | jq -r '.token')
+
+    if [ -z "$REMOVE_TOKEN" ]; then fatal "Failed to get a token"; fi
+
+    # GitHub uses node to run the runner, kill it
+    sudo killall node
+    sleep 5
+
+    echo
+    echo "Removing the runner..."
+    pushd ./runner
+    sudo ./config.sh remove --token $REMOVE_TOKEN
   fi
 done
