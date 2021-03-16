@@ -48,9 +48,11 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: main
+        RUNNER_SUBNET: '${{ secrets.RUNNER_SUBNET }}'
+        RUNNER_SG: '${{ secrets.RUNNER_SG }}'
     - run: |
         source ~/.bash_profile && source ~/.bashrc
         cd main/
-        export SUBNETID="${{ secrets.RUNNER_SUBNET }}" \
-          && export SECURITYG="${{ secrets.RUNNER_SG }}" \
+        export SUBNETID="$RUNNER_SUBNET" \
+          && export SECURITYG="$RUNNER_SG" \
           && scripts/create_ami.sh
