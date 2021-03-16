@@ -14,12 +14,19 @@ EC2_TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
   -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
 
 curl -H "X-aws-ec2-metadata-token: $EC2_TOKEN" \
-  -v "http://169.254.169.254/latest/meta-data/instance-id" > instance_id.txt
+  "http://169.254.169.254/latest/meta-data/instance-id" > instance_id.txt
+
+curl -H "X-aws-ec2-metadata-token: $EC2_TOKEN" \
+  "http://169.254.169.254/latest/meta-data/placement/availability-zone" > az.txt
 
 INSTANCE_ID=$(tr -cd '[:print:]' < instance_id.txt)
 export INSTANCE_ID=$INSTANCE_ID
 
-echo "Instance ID: $INSTANCE_ID"
+grep -oP "^(.+?\d(?=[a-z]))" az.txt > region.txt
+RUNNER_REGION=$(tr -cd '[:print:]' < region.txt)
+export RUNNER_REGION=$RUNNER_REGION
+
+echo "Instance ID: $INSTANCE_ID, Region: $RUNNER_REGION"
 
 if [ -z "$INSTANCE_ID" ]
 then
@@ -28,15 +35,12 @@ fi
 
 echo "--------------"
 
-echo -n '{region}' > region.txt
 echo -n 'github-runner-{type}-{uniqueid}' > name.txt
 echo -n '{repo}' > repo.txt
 
-RUNNER_REGION=$(tr -cd '[:print:]' < region.txt)
 RUNNER_NAME=$(tr -cd '[:print:]' < name.txt)
 RUNNER_REPO=$(tr -cd '[:print:]' < repo.txt)
 
-export RUNNER_REGION=$RUNNER_REGION
 export RUNNER_REPO=$RUNNER_REPO
 export RUNNER_NAME=$RUNNER_NAME
 
@@ -48,7 +52,8 @@ echo "------- Start the watcher -------"
 ./instance_watcher.sh &
 
 echo "Getting PAT from SSM '/github/runner/pat'"
-RAWPAT=$(aws ssm get-parameter --name "/github/runner/pat" --region "$RUNNER_REGION" \
+RAWPAT=$(aws ssm get-parameter --name "/github/runner/pat" \
+  --region "$RUNNER_REGION" \
   --with-decryption | jq -r ".[].Value" | tr -cd '[:print:]')
 export RUNNER_CFG_PAT=$RAWPAT
 

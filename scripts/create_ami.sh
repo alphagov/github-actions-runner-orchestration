@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "Starting: $(date +%s)"
+
 REGION="eu-west-2"
 
 echo "Getting lastest Amazon Linux 2 ECS AMI"
@@ -23,37 +25,30 @@ CREATE_EC2=$(aws ec2 run-instances \
   --subnet-id "$SUBNETID" \
   --security-group-ids "$SECURITYG" \
   --monitoring Enabled=true \
-  --user-data file://scripts/amazon_linux_ec2_ami_build.sh)
+  --iam-instance-profile Name="GitHubRunnerInstanceRole" \
+  --user-data "file://scripts/amazon_linux_ec2_ami_build.sh")
 
 INSTANCE_ID=$(echo "$CREATE_EC2" | jq -r '.Instances[0].InstanceId')
 
+echo "Created instance: $(date +%s)"
 sleep 10
 
 READY="false"
 
 echo "Describing instance in while loop to check if ready"
 i="0"
-# 10 minutes
-while [ $i -lt 20 ]; do
-  EC2_STATUS_JSON=$(aws ec2 describe-instance-status \
-    --region "$REGION" --instance-ids "$INSTANCE_ID")
+# 20 minutes
+while [ $i -lt 40 ]; do
+  AMIBUILDSTATUS=$(aws ec2 describe-tags \
+    --filters "Name=resource-id,Values=$INSTANCE_ID" \
+    --region "$REGION" \
+    | jq -r '.Tags | .[] | select(.Key == "AMIBuildStatus").Value')
 
-  STATE=$(echo "$EC2_STATUS_JSON" | jq -r \
-    '.InstanceStatuses[0].InstanceState.Name')
-
-  STATUS=$(echo "$EC2_STATUS_JSON" | jq -r \
-    '.InstanceStatuses[0].InstanceStatus.Status')
-
-  SYSTEM=$(echo "$EC2_STATUS_JSON" | jq -r \
-    '.InstanceStatuses[0].SystemStatus.Status')
-
-  COMPLETE_STATUS="${STATE}:${STATUS}:${SYSTEM}"
-
-  if [ "$COMPLETE_STATUS" == "running:ok:ok" ]; then
+  if [ "$AMIBUILDSTATUS" == "done" ]; then
     READY="true"
     break
   else
-    echo "Not ready: ${COMPLETE_STATUS}"
+    echo "Not ready: ${AMIBUILDSTATUS}"
     sleep 30
   fi
 
@@ -85,6 +80,8 @@ if [ -z "$AMI_ID" ] || [ "$AMI_ID" == "null" ]; then
   terminateEC2 "$REGION" "$INSTANCE_ID"
   exit 1
 fi
+
+echo "Created instance: $(date +%s)"
 
 AMI_READY="false"
 j="0"

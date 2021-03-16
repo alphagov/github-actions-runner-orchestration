@@ -13,6 +13,32 @@ yum install -y jq git amazon-linux-extras tar gzip util-linux dotnet-sdk-5.0 \
   systemd
 yum groupinstall -y "Development Tools"
 
+echo "--------------"
+
+EC2_TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" \
+  -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+
+curl -H "X-aws-ec2-metadata-token: $EC2_TOKEN" \
+  "http://169.254.169.254/latest/meta-data/instance-id" > instance_id.txt
+
+curl -H "X-aws-ec2-metadata-token: $EC2_TOKEN" \
+  "http://169.254.169.254/latest/meta-data/placement/availability-zone" > az.txt
+
+INSTANCE_ID=$(tr -cd '[:print:]' < instance_id.txt)
+export INSTANCE_ID=$INSTANCE_ID
+
+REGION=$(tr -cd '[:print:]' < az.txt | grep -oP "^(.+?\d(?=[a-z]))")
+export REGION=$REGION
+
+echo "Instance ID: $INSTANCE_ID, Region: $REGION"
+
+echo "--------------"
+
+aws ec2 create-tags --region "$REGION" \
+  --resources "$INSTANCE_ID" --tags "Key=AMIBuildStatus,Value=starting"
+
+echo "--------------"
+
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
 unzip -o acv2.zip
 rm acv2.zip
@@ -116,5 +142,8 @@ sudo yum clean all
 sudo rm -rf /var/cache/yum
 
 echo "ready" > /home/github/ami_state.txt
+
+aws ec2 create-tags --region "$REGION" \
+  --resources "$INSTANCE_ID" --tags "Key=AMIBuildStatus,Value=done"
 
 echo "-------- Finished common ---------"
