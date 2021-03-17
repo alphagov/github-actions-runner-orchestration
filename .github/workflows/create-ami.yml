@@ -49,6 +49,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: main
+      env:
         SUBNETID: '${{ secrets.RUNNER_SUBNET }}'
         SECURITYG: '${{ secrets.RUNNER_SG }}'
     - run: |
