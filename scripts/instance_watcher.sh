@@ -57,6 +57,6 @@ while true; do
     echo
     echo "Removing the runner..."
     pushd ./runner || exit 1
-    sudo ./config.sh remove --token "$REMOVE_TOKEN"
+    runuser -l github -c "./config.sh remove --token $REMOVE_TOKEN"
   fi
 done
