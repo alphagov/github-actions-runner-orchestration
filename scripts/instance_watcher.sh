@@ -50,13 +50,24 @@ while true; do
 
     if [ -z "$REMOVE_TOKEN" ]; then echo "Failed to get a token" && exit 1; fi
 
-    # GitHub uses node to run the runner, kill it
-    sudo killall node
-    sleep 5
-
     echo
     echo "Removing the runner..."
-    pushd ./runner || exit 1
-    runuser -l github -c "./config.sh remove --token $REMOVE_TOKEN"
+    
+    GITHUB_RUNNER="/opt/github/runner/runner"
+    SERVICE_FILE="${GITHUB_RUNNER}/.service"
+    CONFIG_SH="${GITHUB_RUNNER}/config.sh"
+    RUNNER_SERVICE=$(tr -cd '[:print:]' < "$SERVICE_FILE")
+    
+    if [ -z "$RUNNER_SERVICE" ]; then echo "No service file" && exit 1; fi
+    
+    UNITD="/etc/systemd/system/${RUNNER_SERVICE}"
+    
+    sudo systemctl stop $RUNNER_SERVICE
+    sudo systemctl disable $RUNNER_SERVICE
+    sudo rm "$UNITD" || echo "Failed to delete: $UNITD"
+    sudo rm "$SERVICE_FILE"
+    sudo systemctl daemon-reload
+    
+    sudo runuser -l github -c "RUNNER_CFG_PAT=$RAWPAT $CONFIG_SH remove --token $REMOVE_TOKEN"
   fi
 done
