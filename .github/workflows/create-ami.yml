@@ -36,7 +36,7 @@ jobs:
           echo "State: ${{ steps.garoclient-spot.outputs.runnerstate }}"
           echo "UniqueID: ${{ steps.garoclient-spot.outputs.uniqueid }}"
 
-  deploy-to-staging:
+  create-ami:
     environment: aws_dev
     name: Deploy an instance with the build only
     needs: get-spot-runner
@@ -52,7 +52,11 @@ jobs:
       env:
         SUBNETID: '${{ secrets.RUNNER_SUBNET }}'
         SECURITYG: '${{ secrets.RUNNER_SG }}'
+        RUNNERUID: "${{ needs.get-spot-runner.outputs.uniqueid }}"
     - run: |
+        echo "Runner Unique ID: $RUNNERUID"
         source ~/.bash_profile && source ~/.bashrc
         cd main/
-        bash scripts/create_ami.sh
+        export SUBNETID=$SUBNETID \
+          && export SECURITYG=$SECURITYG \
+          && scripts/create_ami.sh
