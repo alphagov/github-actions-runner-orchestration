@@ -52,7 +52,7 @@ Which does the following:
 1. Tests the new production runner
 
 
-[action.yml]: ../client/action.yml
+[action.yml]: ../client/action.yml#L67
 [Terraform workspaces]: https://www.terraform.io/docs/cloud/workspaces/index.html
 [garo_terraform]: ../garo_terraform/
-[.terraform-version]: ../garo_terraform/,terraform-version
+[.terraform-version]: ../garo_terraform/.terraform-version
