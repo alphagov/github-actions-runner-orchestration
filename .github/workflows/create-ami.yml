@@ -49,18 +49,11 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: main
-        abcdefgh: "${{ needs.get-spot-runner.outputs.uniqueid }}"
-      env:
-        SUBNETID: '${{ secrets.RUNNER_SUBNET }}'
-        SECURITYG: '${{ secrets.RUNNER_SG }}'
-        RUNNERUID: "${{ needs.get-spot-runner.outputs.uniqueid }}"
-    - run: |
-        echo "Runner Unique ID: $RUNNERUID"
-        echo "Runner Unique ID: ${{ needs.get-spot-runner.outputs.uniqueid }}"
-        echo "Runner Unique ID: ${{ github.event.inputs.abcdefgh }}"
-        
+    - run: |        
         source ~/.bash_profile && source ~/.bashrc
+        
+        echo "Runner Unique ID: ${{ needs.get-spot-runner.outputs.uniqueid }}"
         cd main/
-        export SUBNETID=$SUBNETID \
-          && export SECURITYG=$SECURITYG \
+        export SUBNETID=${{ secrets.RUNNER_SUBNET }} \
+          && export SECURITYG=${{ secrets.RUNNER_SG }} \
           && scripts/create_ami.sh
