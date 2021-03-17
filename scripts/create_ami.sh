@@ -30,7 +30,7 @@ echo "Creating instance"
 CREATE_EC2=$(aws ec2 run-instances \
   --region "$REGION" \
   --image-id "$IMAGEID" \
-  --instance-type "t3a.medium" \
+  --instance-type "t3a.xlarge" \
   --count 1 \
   --no-associate-public-ip-address \
   --subnet-id "$SUBNETID" \
@@ -39,7 +39,7 @@ CREATE_EC2=$(aws ec2 run-instances \
   --iam-instance-profile Name="GitHubRunnerInstanceRole" \
   --user-data "file://scripts/amazon_linux_ec2_ami_build.sh")
 
-INSTANCE_ID=$(echo "$CREATE_EC2" | jq -r '.Instances[0].InstanceId')
+NEW_INSTANCE_ID=$(echo "$CREATE_EC2" | jq -r '.Instances[0].InstanceId')
 
 echo "Created instance"
 sleep 10
@@ -51,7 +51,7 @@ i="0"
 # 20 minutes
 while [ $i -lt 40 ]; do
   AMIBUILDSTATUS=$(aws ec2 describe-tags \
-    --filters "Name=resource-id,Values=$INSTANCE_ID" \
+    --filters "Name=resource-id,Values=$NEW_INSTANCE_ID" \
     --region "$REGION" \
     | jq -r '.Tags | .[] | select(.Key == "AMIBuildStatus").Value')
 
@@ -59,7 +59,7 @@ while [ $i -lt 40 ]; do
     READY="true"
     break
   else
-    echo "Not ready: ${AMIBUILDSTATUS}"
+    echo "ec2:run-instances - not ready: ${AMIBUILDSTATUS}"
     sleep 30
   fi
 
@@ -83,12 +83,12 @@ echo "EC2 instance ready, taking an image..."
 
 AMI_ID=$(aws ec2 create-image \
   --region "$REGION" \
-  --instance-id "$INSTANCE_ID" \
+  --instance-id "$NEW_INSTANCE_ID" \
   --name "custom-ami-$(date +%s)" | jq -r '.ImageId')
 
 if [ -z "$AMI_ID" ] || [ "$AMI_ID" == "null" ]; then
   echo "Failed to start creating the image"
-  terminateEC2 "$REGION" "$INSTANCE_ID"
+  terminateEC2 "$REGION" "$NEW_INSTANCE_ID"
   exit 1
 fi
 
@@ -108,7 +108,7 @@ while [ $j -lt 20 ]; do
     AMI_READY="true"
     break
   else
-    echo "Not ready: ${AMI_STATUS}"
+    echo "ec2:create-image - not ready: ${AMI_STATUS}"
     sleep 30
   fi
 
@@ -117,7 +117,7 @@ done
 
 if [ "$AMI_READY" != "true" ]; then
   echo "AMI wasn't ready in time"
-  terminateEC2 "$REGION" "$INSTANCE_ID"
+  terminateEC2 "$REGION" "$NEW_INSTANCE_ID"
   exit 1
 fi
 
@@ -132,6 +132,6 @@ aws ec2 modify-image-attribute \
 sleep 1
 
 echo "Terminating original EC2"
-terminateEC2 "$REGION" "$INSTANCE_ID"
+terminateEC2 "$REGION" "$NEW_INSTANCE_ID"
 
 echo "-- FINISHED! --"
