@@ -1,5 +1,5 @@
 # github-actions-runner-orchestration (GARO)
-![Experimental](https://img.shields.io/badge/Status-Experimental-orange.svg) [![Test and deploy to staging and production](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/deploy.yml)
+![Experimental](https://img.shields.io/badge/Status-Experimental-orange.svg) [![Test and deploy to staging and production](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/deploy.yml) [![Create AMI](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/create-ami.yml/badge.svg?branch=main)](https://github.com/alphagov/github-actions-runner-orchestration/actions/workflows/create-ami.yml)
 
 ## What is it?
 GARO is an experimental serverless (AWS Lambda) API for running GitHub Action
@@ -12,7 +12,7 @@ See the [client README](client/README.md) for details and an example.
 
 There are also the [workflows here] which use this tool.
 
-## Requirements for [client] (or direct API use)
+## Requirements for [garo client] (or direct API use)
 - subnets with external internet access (recommend via a NAT gateway)
 - security group for the runner instances
 - 2x IAM roles (see [terraform_module](terraform_module/) for these)
