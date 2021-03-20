@@ -60,11 +60,11 @@ jobs:
         cd garo_terraform/
         tfenv install
         tfenv use
-        terraform init
-        terraform validate
+        terraform init | awsredact
+        terraform validate | awsredact
         terraform workspace list
         terraform workspace select staging
-        terraform apply -auto-approve
+        terraform apply -auto-approve | awsredact
 
         sleep 5
 
@@ -116,7 +116,7 @@ jobs:
     - run: |
         source ~/.bash_profile
         ls -lah main
-        aws sts get-caller-identity
+        aws sts get-caller-identity | awsredact
         docker run hello-world
 
   deploy-to-prod:
@@ -143,11 +143,11 @@ jobs:
         cd garo_terraform/
         tfenv install
         tfenv use
-        terraform init
-        terraform validate
+        terraform init | awsredact
+        terraform validate | awsredact
         terraform workspace list
         terraform workspace select prod
-        terraform apply -auto-approve
+        terraform apply -auto-approve | awsredact
 
         sleep 5
 
@@ -199,5 +199,5 @@ jobs:
     - run: |
         source ~/.bash_profile
         ls -lah main
-        aws sts get-caller-identity
+        aws sts get-caller-identity | awsredact
         docker run hello-world

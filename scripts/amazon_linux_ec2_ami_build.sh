@@ -133,7 +133,16 @@ echo "Adding environment variables"
   echo 'GOPATH=$HOME/go && export GOPATH'
   echo 'GO111MODULE="auto" && export GO111MODULE'
   echo 'export PATH'
-) >> /home/github/.bashrc
+  echo """redact () {
+    if (( \$# > 0)); then
+      MATCH=\$(echo "\$@" | sed 's/ /\|/') && \
+        sed -E \"s/\$MATCH/REDACTED/g\";
+    else read tmpRdt && echo \$tmpRdt;
+    fi
+  }
+  """
+  echo "awsredact () { redact '[[:xdigit:]]{9,999}'; }"
+) | tee -a /home/github/.bash_profile >> /home/github/.bashrc
 
 chown github:github -R /home/github
 

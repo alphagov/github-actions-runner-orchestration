@@ -46,7 +46,7 @@ jobs:
         source ~/.bash_profile
         echo "Hello world from test1!"
         echo ""
-        aws sts get-caller-identity
+        aws sts get-caller-identity | redact '${{ secrets.RUNNER_ACID }}'
         echo ""
 
   use-test2-runner:
@@ -60,7 +60,7 @@ jobs:
         source ~/.bash_profile
         echo "Hello world from test2!"
         echo ""
-        aws sts get-caller-identity
+        aws sts get-caller-identity | awsredact
         echo ""
 
   use-test3-runner:
@@ -74,5 +74,5 @@ jobs:
         source ~/.bash_profile
         echo "Hello world from test3 (ondemand)!"
         echo ""
-        aws sts get-caller-identity
+        aws sts get-caller-identity | redact '[[:xdigit:]]{1,999}'
         echo ""
