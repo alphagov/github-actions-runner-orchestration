@@ -142,6 +142,7 @@ echo "Adding environment variables"
   }
   """
   echo "awsredact () { redact '[[:xdigit:]]{9,999}'; }"
+  echo "hexredact () { redact '[[:xdigit:]]{4,999}'; }"
 ) | tee -a /home/github/.bash_profile >> /home/github/.bashrc
 
 chown github:github -R /home/github
