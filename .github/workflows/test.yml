@@ -36,6 +36,7 @@ jobs:
           RUNNER_TIMEOUT: '900'
 
   use-test1-runner:
+    environment: aws_dev # for the redaction
     runs-on: [self-hosted, linux, spot, test1]
     needs: get-runners
     defaults:
