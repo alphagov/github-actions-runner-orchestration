@@ -1,0 +1,32 @@
+name: tfsec
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.tf'
+  pull_request:
+    paths:
+      - '**.tf'
+jobs:
+  tfsec:
+    name: tfsec sarif report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@main
+
+      - name: tfsec
+        uses: tfsec/tfsec-sarif-action@2ec44316ed27c50d48c931c3c628adc4c8bb1d2b
+        with:
+          sarif_file: tfsec.sarif
+          # secret generated per workflow run
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          # Path to SARIF file relative to the root of the repository
+          # created above in last step
+          sarif_file: tfsec.sarif
