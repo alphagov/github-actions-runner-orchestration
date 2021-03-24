@@ -1,4 +1,6 @@
 name: Validate and Test Terraform
+# this action runs terraform init, validate and tests
+# for common security vulnerabilities
 
 on:
   workflow_dispatch:
