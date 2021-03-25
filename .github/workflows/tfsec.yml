@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@main
       
       - name: Empty zip
-        run: touch .build/lambda.zip
+        run: mkdir .build && touch .build/lambda.zip
         
       - name: Validate Terraform
         run: |
