@@ -21,6 +21,9 @@ jobs:
     steps:
       - name: Clone repo
         uses: actions/checkout@main
+      
+      - name: Empty zip
+        run: touch .build/lambda.zip
         
       - name: Validate Terraform
         run: |
