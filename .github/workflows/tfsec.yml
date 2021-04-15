@@ -9,9 +9,9 @@ on:
       - main
     paths:
       - '**.tf'
-  pull_request:
-    paths:
-      - '**.tf'
+  # pull_request:
+  #   paths:
+  #     - '**.tf'
 
 jobs:
   tfsec:
