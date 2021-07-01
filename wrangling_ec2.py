@@ -95,6 +95,8 @@ def getLatestImage(region: str, credentials: dict, amazon_ecs_ami: bool = True) 
 
         for image in response["Images"]:
 
+            print(image)
+
             dt = datetime.datetime.strptime(
                 image["CreationDate"], "%Y-%m-%dT%H:%M:%S.%fZ"
             )
@@ -283,7 +285,9 @@ def startRunnerFromBody(body_items: dict, credentials: dict) -> bool:
 
 
 def _timeoutTagValue(timeout: int = EC2_DEFAULT_TIMEOUT):
-    return str(int(time.time()) + timeout)
+    timeout_str = str(int(time.time()) + timeout)
+    print("timeout_str: ", timeout_str)
+    return timeout_str
 
 
 def startRunner(

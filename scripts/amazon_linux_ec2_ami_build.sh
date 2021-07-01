@@ -34,15 +34,16 @@ echo "Instance ID: $INSTANCE_ID, Region: $REGION"
 
 echo "--------------"
 
-aws ec2 create-tags --region "$REGION" \
-  --resources "$INSTANCE_ID" --tags "Key=AMIBuildStatus,Value=starting"
-
-echo "--------------"
-
 curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "acv2.zip"
 unzip -o acv2.zip
 rm acv2.zip
 sudo ./aws/install
+
+echo "--------------"
+
+aws ec2 create-tags --region "$REGION" \
+  --resources "$INSTANCE_ID" --tags "Key=AMIBuildStatus,Value=starting"
+
 
 GRD="/opt/github/runner"
 RAWGITHUB="https://raw.githubusercontent.com"

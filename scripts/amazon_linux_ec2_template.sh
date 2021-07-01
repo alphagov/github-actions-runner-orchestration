@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 echo "Starting user data"
 
+yum update -y
+yum install -y jq
+
 GRD="/opt/github/runner"
 cd "$GRD" || exit 1
 
