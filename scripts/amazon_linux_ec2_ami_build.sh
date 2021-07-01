@@ -118,7 +118,7 @@ ln -s /opt/tfenv/bin/terraform /usr/local/bin > /dev/null
 chown github:github -R /opt/tfenv
 
 echo "Downloading latest runner"
-CURRENT_SHA="8109c962f09d9acc473d92c595ff43afceddb347" # pragma: allowlist secret
+CURRENT_SHA="d4cdb633db046f3ec5da048feba940c3a8d606a6" # pragma: allowlist secret
 CURRENT_URL="https://raw.githubusercontent.com/actions/runner/$CURRENT_SHA/scripts/"
 
 curl -sLO "$CURRENT_URL/create-latest-svc.sh"

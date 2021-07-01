@@ -2,6 +2,8 @@ name: Create AMI
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 09 * * 5'
 
 jobs:
   get-spot-runner:
