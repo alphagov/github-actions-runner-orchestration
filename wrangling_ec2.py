@@ -95,8 +95,6 @@ def getLatestImage(region: str, credentials: dict, amazon_ecs_ami: bool = True) 
 
         for image in response["Images"]:
 
-            print(image)
-
             dt = datetime.datetime.strptime(
                 image["CreationDate"], "%Y-%m-%dT%H:%M:%S.%fZ"
             )
